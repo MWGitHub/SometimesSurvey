@@ -7,25 +7,17 @@ const internals = {
 };
 
 module.exports = {
-  isConnected() {
-    return !!internals.knex;
-  },
-
   connect(options = knexfile) {
     internals.options = options[process.env.NODE_ENV];
     internals.knex = knex(options);
   },
 
-  knex() {
-    return internals.knex;
+  isConnected() {
+    return !!internals.knex;
   },
 
-  migrate() {
-    if (this.isConnected()) {
-      return internals.knex.migrate.latest();
-    }
-
-    return Promise.resolve();
+  knex() {
+    return internals.knex;
   },
 
   close() {

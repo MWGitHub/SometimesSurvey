@@ -92,28 +92,26 @@ The forms here are a high level version for conciseness and not all parameters a
 `/v1/surveys/items/{item_id}/events/conversion`: POST to create a conversion.
 `/v1/surveys/items/{item_id}/result/{result_id}`: CRUD for results in an item with create and update being public.  
 `/v1/surveys/items/{item_id}/status`:  Check if a survey should be shown for the given item.  
-`/v1/surveys/items/{item_id}/`: CRUD for items for a scheme with all being private.  
-`/v1/surveys/`: CRUD for all items with all being private.
+`/v1/surveys/items/{item_id}/`: CRUD for items with all being private.  
+`/v1/surveys/`: GET to retrieve all items, requires auth.
 
 #####Implementation Steps
 
 Each step creates tests before creating the implementation. Tests and examples that require seed data will be created as needed.
 
-1. Server
+1. Survey Server
     1. Database Integration
     1. Database schema
     1. Scheme Integration
-    1. Item model
-    1. Result model
     1. Authentication check on routes
-    1. Item handlers
-    1. Result handlers
-    1. Survey handlers
-    1. Survey change broadcaster
+    1. Survey handlers and routes
+    1. Item handlers and routes
+    1. Events handlers and routes
+    1. Survey change broadcast
 1. Article Scheme
     1. Article validation
     1. Article survey condition checks
-1. Component
+1. Survey Component
     1. Send events to survey endpoints
     1. Get focused article
     1. Check if survey should be asked locally

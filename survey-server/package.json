@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "boom": "^3.2.1",
     "hapi": "^13.4.1",
+    "joi": "^8.1.1",
     "knex": "^0.11.5",
     "pg": "^4.5.5"
   },
