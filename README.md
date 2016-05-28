@@ -18,17 +18,17 @@ Other services such as analytics that rely on the data can listen to events and 
 Postgres is used for storing the results of each item. I chose this due to the structure of the survey data being well defined and the ability to run aggregate queries easily.
 
 **Backend**  
-I chose Hapi due to the great documentation, support by Walmart Labs, powerful route configuration, and seneca integration.
+I chose Hapi due to the great documentation, ease of use, support by Walmart Labs, powerful route configuration, and seneca integration.
 
 **Frontend**  
 Deku will be used for rendering the component. The decision was based on the functional style promoting statelessness which can reduce complexity, good performance, and curiosity.
 
 **Tracking**  
-A wrapper is used around tracking events to allow users to choose how to deal with the events when they occur in the component. Impression events are also sent to the survey server to store the results if enabled.
+Callbacks are used around tracking events to allow developers to choose how to deal with the events when they occur in the component. Impression and conversion events are also sent to the survey server to store the results if enabled.
 
 #####Data Model
 
-Survey Nodels
+Survey Models
 ```
 impressions
   integer (pk)    - id
