@@ -1,6 +1,7 @@
 const database = require('./database');
 const co = require('co');
 const Boom = require('boom');
+const api = require('./api');
 
 module.exports = {
   EVENTS: {
@@ -20,8 +21,22 @@ module.exports = {
 
   getEvents(request, reply) {
     return co(function* events() {
-      const result = yield database.knex().select().table('events');
-      return reply(result);
+      const offset = request.query.offset || 0;
+      const limit = request.query.limit || 0;
+
+      let query = database.knex().select().table('events');
+      if (limit > 0) {
+        query = query.limit(limit);
+      }
+      if (offset > 0) {
+        query = query.offset(offset);
+      }
+
+      const response = {
+        pagination: { offset, limit },
+        events: yield query,
+      };
+      return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
