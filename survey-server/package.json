@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node examples/simple.js",
     "migrate-test": "NODE_ENV=test knex migrate:latest",
     "migrate": "knex migrate:latest",
     "seed-test": "NODE_ENV=test knex seed:run",

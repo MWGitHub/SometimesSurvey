@@ -12,7 +12,9 @@ class Server {
       key: 'change this key!',
       useDatabase: true,
       databaseConfig: knexfile,
+      scheme: null,
     }, inputOptions);
+
     this._config = options;
     this._server = new Hapi.Server();
     this._server.connection({ port: this._config.port });
@@ -37,6 +39,12 @@ Server.prototype.initialize = function initialize() {
       register: keyAuth,
       options: {
         key: this._config.key,
+      },
+    },
+    {
+      register: schemer,
+      options: {
+        scheme: this._config.scheme,
       },
     },
   ];
@@ -68,14 +76,6 @@ Server.prototype.stop = function stop() {
     database.close();
   }
   return this._server.stop();
-};
-
-Server.prototype.setScheme = function setScheme(scheme) {
-  if (!schemer.validScheme(scheme)) {
-    throw new TypeError('Invalid scheme format');
-  }
-
-  this._scheme = scheme;
 };
 
 module.exports = Server;

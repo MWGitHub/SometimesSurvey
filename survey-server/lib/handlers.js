@@ -53,7 +53,7 @@ module.exports = {
       const limit = request.query.limit || 0;
 
       let query = database.knex().select().table('events')
-        .where('item_id', request.params.id);
+        .where('item_key', request.params.id);
       query = internals.paginate(query, offset, limit);
 
       const response = {
