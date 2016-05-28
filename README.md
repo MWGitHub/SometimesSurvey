@@ -62,7 +62,7 @@ conversions
 
 The root will have three folders, one for the server, one for the scheme to handle articles, and one for the component. Normally I would split these into different repositories since each are not directly dependent on any of the others.
 
-Each will have mock responses for handling article endpoints and analytics endpoints for testing and examples.
+Each will have fake responses for handling article endpoints and analytics endpoints for testing and examples.
 
 #####Client/Server Flow
 The flow will be in this order:
@@ -93,12 +93,12 @@ The forms here are a high level version for conciseness and not all parameters a
 
 #####Implementation Steps
 
-Each step creates tests before creating the implementation. Tests and examples that require mock data will be created as needed.
+Each step creates tests before creating the implementation. Tests and examples that require seed data will be created as needed.
 
 1. Server
     1. Database Integration
-    1. Scheme Integration
     1. Database schema
+    1. Scheme Integration
     1. Item model
     1. Result model
     1. Authentication check on routes
