@@ -6,16 +6,20 @@
   "scripts": {
     "migrate-test": "NODE_ENV=test knex migrate:latest",
     "migrate": "knex migrate:latest",
-    "test": "NODE_ENV=test tape test/**/*.js | tap-spec"
+    "seed-test": "NODE_ENV=test knex seed:run",
+    "seed": "knex seed:run",
+    "test": "NODE_ENV=test npm run seed-test && NODE_ENV=test tape test/**/*.js | tap-spec"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "boom": "^3.2.1",
+    "co": "^4.6.0",
     "hapi": "^13.4.1",
     "joi": "^8.1.1",
     "knex": "^0.11.5",
+    "node-uuid": "^1.4.7",
     "pg": "^4.5.5"
   },
   "devDependencies": {

@@ -1,12 +1,15 @@
 /* eslint-disable */
 exports.up = function(knex, Promise) {
-  knex.schema.createTable('impressions', function (table) {
+  return knex.schema.createTable('events', function (table) {
     table.increments();
-    table.integer('item_id').index();
+    table.integer('item_id').index().notNullable();
+    table.uuid('fingerprint').index().notNullable();
+    table.string('event').index().notNullable();
+    table.jsonb('data');
     table.timestamps();
   });
 };
 
 exports.down = function(knex, Promise) {
-  knex.schema.dropTable('impressions');
+  return knex.schema.dropTable('events');
 };

@@ -14,8 +14,9 @@ Advantages of a single scheme per service includes easier horizontal scaling, lo
 Other services such as analytics that rely on the data can listen to events and replicate the data. This allows a more specific database to be used for different situations.
 
 #####Technology
+
 **Persistence**   
-Postgres is used for storing the results of each item. I chose this due to the structure of the survey data being well defined and the ability to run aggregate queries easily.
+Postgres is used for storing the results of each item. I chose this due to the structure of the survey data being well defined for some columns which will make it easier to run aggregate queries. For less defined data, jsonb is used.
 
 **Backend**  
 I chose Hapi due to the great documentation, ease of use, support by Walmart Labs, powerful route configuration, and seneca integration.
@@ -28,17 +29,16 @@ Callbacks are used around tracking events to allow developers to choose how to d
 
 #####Data Model
 
-Survey Models - Normalized to allow retrieval by date range.
-```
-impressions
-  integer (pk)    - id
-  integer (index) - item_id
-  timestamp
+Survey Event Model  
+Fingerprint can be used to see more detailed user behavior. The fingerprint is not guaranteed to be unique but the collision chance is low enough for this case.
 
-conversions
+```
+events
   integer (pk)    - id
-  integer (index) - item_id
-  integer         - box
+  integer (index) - item_id (id of the tracked item)
+  uuid (index)    - fingerprint (fingerprint unique to the current user)
+  string          - event
+  jsonb           - data
   timestamp
 ```
 
@@ -67,6 +67,7 @@ The root will have three folders, one for the server, one for the scheme to hand
 Each will have fake responses for handling article endpoints and analytics endpoints for testing and examples.
 
 #####Client/Server Flow
+
 The flow will be in this order:
 
 1. Client requests page
@@ -83,17 +84,15 @@ The flow will be in this order:
 1. Client goes on to the next prompt or hides regardless of result for better usability
 
 #####Survey Endpoints
-Private endpoints require authentication. Authorization not supported at the moment.
+
+Private endpoints require authentication.
 More detailed information about endpoints [here][server-endpoints]
 
-The forms here are a high level version for conciseness and not all parameters are used in every operation. Query parameters such as start and count will be available in the retrieval routes.
-
-`/v1/surveys/items/{item_id}/events/impression`: POST to create an impression.
-`/v1/surveys/items/{item_id}/events/conversion`: POST to create a conversion.
-`/v1/surveys/items/{item_id}/result/{result_id}`: CRUD for results in an item with create and update being public.  
-`/v1/surveys/items/{item_id}/status`:  Check if a survey should be shown for the given item.  
-`/v1/surveys/items/{item_id}/`: CRUD for items with all being private.  
-`/v1/surveys/`: GET to retrieve all items, requires auth.
+`GET auth /v1/items`: Retrieve all items.  
+`GET auth /v1/items/{id}/`: Retrieve results matching the id
+`GET /v1/items/{id}/status`:  Check if a survey should be shown for the given item.  
+`POST /v1/items/{id}/events/impression`: Create an impression for the item.
+`POST /v1/items/{id}/events/conversion`: Create a conversion for the item.
 
 #####Implementation Steps
 
@@ -104,7 +103,6 @@ Each step creates tests before creating the implementation. Tests and examples t
     1. Database schema
     1. Scheme Integration
     1. Authentication check on routes
-    1. Survey handlers and routes
     1. Item handlers and routes
     1. Events handlers and routes
     1. Survey change broadcast

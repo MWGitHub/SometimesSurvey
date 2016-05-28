@@ -6,8 +6,15 @@ module.exports = {
       user: process.env.pg_user,
       database: 'sometimes_survey_test',
     },
+    seeds: {
+      directory: './db/seeds',
+    },
     migrations: {
       directory: './db/migrations',
+    },
+    pool: {
+      min: 1,
+      max: 2,
     },
   },
 
@@ -18,8 +25,15 @@ module.exports = {
       user: process.env.pg_user,
       database: 'sometimes_survey_dev',
     },
+    seeds: {
+      directory: './db/seeds',
+    },
     migrations: {
       directory: './db/migrations',
+    },
+    pool: {
+      min: 1,
+      max: 2,
     },
   },
 
@@ -30,8 +44,15 @@ module.exports = {
       user: process.env.pg_user,
       database: 'sometimes_survey',
     },
+    seeds: {
+      directory: './db/seeds',
+    },
     migrations: {
       directory: './db/migrations',
+    },
+    pool: {
+      min: 1,
+      max: 2,
     },
   },
 };

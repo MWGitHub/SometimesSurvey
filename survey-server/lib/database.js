@@ -1,5 +1,4 @@
 const knex = require('knex');
-const knexfile = require('../knexfile');
 
 const internals = {
   options: null,
@@ -7,9 +6,11 @@ const internals = {
 };
 
 module.exports = {
-  connect(options = knexfile) {
+  connect(options) {
+    if (!options) return;
+
     internals.options = options[process.env.NODE_ENV];
-    internals.knex = knex(options);
+    internals.knex = knex(internals.options);
   },
 
   isConnected() {
