@@ -6,7 +6,7 @@
   "scripts": {
     "migrate-test": "NODE_ENV=test knex migrate:latest",
     "migrate": "knex migrate:latest",
-    "test": "NODE_ENV=test tape test/**/*.js"
+    "test": "NODE_ENV=test tape test/**/*.js | tap-spec"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
     "pg": "^4.5.5"
   },
   "devDependencies": {
+    "tap-spec": "^4.1.1",
     "tape": "^4.5.1"
   }
 }
