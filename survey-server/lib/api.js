@@ -1,4 +1,4 @@
 module.exports = {
   version: 1,
-  path: '/v${version}/surveys',
+  path: '/v1',
 };

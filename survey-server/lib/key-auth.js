@@ -1,3 +1,7 @@
+/**
+ * Simple authentication that checks for a matching API key.
+ */
+
 const Boom = require('boom');
 const assert = require('assert');
 
@@ -10,7 +14,7 @@ function keyAuth() {
       if (!isAuthorized) {
         return reply(Boom.unauthorized());
       }
-      return reply.continue();
+      return reply.continue({ credentials: true });
     },
   };
 
