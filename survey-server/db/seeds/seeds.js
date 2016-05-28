@@ -4,9 +4,9 @@ const uuid = require('node-uuid');
 const EVENTS = require('../../lib/handlers').EVENTS;
 
 function create(knex) {
-  function query(event, id, fingerprint, data) {
+  function query(event, key, fingerprint, data) {
     const columns = {
-      item_id: id,
+      item_key: key.toString(),
       fingerprint: fingerprint,
       event: event,
     };
@@ -17,24 +17,24 @@ function create(knex) {
   };
 
   return {
-    impression(id, fingerprint) {
-      return query(EVENTS.IMPRESSION, id, fingerprint);
+    impression(key, fingerprint) {
+      return query(EVENTS.IMPRESSION, key, fingerprint);
     },
 
-    conversion(id, fingerprint, value) {
-      return query(EVENTS.CONVERSION, id, fingerprint, {
+    conversion(key, fingerprint, value) {
+      return query(EVENTS.CONVERSION, key, fingerprint, {
         data: {
           box: value
         }
       });
     },
 
-    capture(id, fingerprint, data) {
-      return query(EVENTS.CAPTURE, id, fingerprint, data);
+    capture(key, fingerprint, data) {
+      return query(EVENTS.CAPTURE, key, fingerprint, data);
     },
 
-    close(id, fingerprint) {
-      return query(EVENTS.CLOSE, id, fingerprint);
+    close(key, fingerprint) {
+      return query(EVENTS.CLOSE, key, fingerprint);
     },
   };
 }
@@ -48,17 +48,17 @@ exports.seed = function(knex, Promise) {
 
     // Have 10 total articles
     const articles = 10;
-    for (let id = 0; id < articles; ++id) {
+    for (let key = 0; key < articles; ++key) {
       // Have 100 total users see each survey
       const users = 100;
       for (let j = 0; j < users; ++j) {
         const fingerprint = uuid.v4();
-        yield creator.impression(id, fingerprint);
+        yield creator.impression(key, fingerprint);
         // Of those users one in 10 vote
         const voteRatio = 10;
         if (j % voteRatio === 0) {
           const value = Math.floor(j / 10);
-          yield creator.conversion(id, fingerprint, value);
+          yield creator.conversion(key, fingerprint, value);
           // Of the ones that vote half like
           const likeRatio = 2;
           if (value % likeRatio === 0) {
@@ -69,9 +69,9 @@ exports.seed = function(knex, Promise) {
             if (value < voteRatio / likeRatio / 2) {
               data['after.survey'] = true;
             }
-            yield creator.capture(id, fingerprint, data);
+            yield creator.capture(key, fingerprint, data);
           }
-          yield creator.close(id, fingerprint);
+          yield creator.close(key, fingerprint);
         }
       }
     }

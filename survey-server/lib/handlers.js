@@ -64,6 +64,10 @@ module.exports = {
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
+  getStatus(request, reply) {
+    reply();
+  },
+
   logEvent(request, reply) {
     reply();
   },

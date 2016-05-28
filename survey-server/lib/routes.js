@@ -1,6 +1,7 @@
 const api = require('./api');
 const handlers = require('./handlers');
 const Joi = require('joi');
+const _ = require('lodash');
 
 const pagination = {
   offset: Joi.number().integer().min(0),
@@ -33,7 +34,7 @@ module.exports = [
       pre: [handlers.databaseCheck],
       validate: {
         params: {
-          id: Joi.number().integer().required(),
+          id: Joi.string().required(),
         },
         query: standard,
       },
@@ -41,10 +42,36 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${api.path}/items/events/{type}`,
+    path: `${api.path}/items/{id}/events`,
+    config: {
+      handler: handlers.getStatus,
+      pre: [handlers.databaseCheck],
+      validate: {
+        params: {
+          id: Joi.string().required(),
+        },
+        payload: {
+          event: Joi.string().valid(_.values(handlers.EVENTS)),
+          data: Joi.any().optional(),
+        },
+      },
+    },
+  },
+  {
+    method: 'GET',
+    path: `${api.path}/items/{id}/events`,
     config: {
       handler: handlers.logEvent,
       pre: [handlers.databaseCheck],
+      validate: {
+        params: {
+          id: Joi.string().required(),
+        },
+        payload: {
+          event: Joi.string().valid(_.values(handlers.EVENTS)),
+          data: Joi.any().optional(),
+        },
+      },
     },
   },
 ];

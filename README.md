@@ -35,7 +35,7 @@ Fingerprint can be used to see more detailed user behavior. The fingerprint is n
 ```
 events
   integer (pk)    - id
-  integer (index) - item_id (id of the tracked item)
+  string  (index) - item_key (id of the tracked item)
   uuid (index)    - fingerprint (fingerprint unique to the current user)
   string          - event
   jsonb           - data
@@ -89,10 +89,9 @@ Private endpoints require authentication.
 More detailed information about endpoints [here][server-endpoints]
 
 `GET auth /v1/items`: Retrieve all items.  
-`GET auth /v1/items/{id}/`: Retrieve results matching the id
+`GET auth /v1/items/{id}/`: Retrieve results matching the id  
 `GET /v1/items/{id}/status`:  Check if a survey should be shown for the given item.  
-`POST /v1/items/{id}/events/impression`: Create an impression for the item.  
-`POST /v1/items/{id}/events/conversion`: Create a conversion for the item.
+`POST /v1/items/{id}/events`: Create an event for the item.  
 
 #####Implementation Steps
 
