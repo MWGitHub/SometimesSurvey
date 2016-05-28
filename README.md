@@ -28,16 +28,18 @@ Callbacks are used around tracking events to allow developers to choose how to d
 
 #####Data Model
 
-Survey Models
+Survey Models - Normalized to allow retrieval by date range.
 ```
 impressions
   integer (pk)    - id
   integer (index) - item_id
+  timestamp
 
 conversions
   integer (pk)    - id
   integer (index) - item_id
   integer         - box
+  timestamp
 ```
 
 #####Folder Structure
@@ -86,6 +88,8 @@ More detailed information about endpoints [here][server-endpoints]
 
 The forms here are a high level version for conciseness and not all parameters are used in every operation. Query parameters such as start and count will be available in the retrieval routes.
 
+`/v1/surveys/items/{item_id}/events/impression`: POST to create an impression.
+`/v1/surveys/items/{item_id}/events/conversion`: POST to create a conversion.
 `/v1/surveys/items/{item_id}/result/{result_id}`: CRUD for results in an item with create and update being public.  
 `/v1/surveys/items/{item_id}/status`:  Check if a survey should be shown for the given item.  
 `/v1/surveys/items/{item_id}/`: CRUD for items for a scheme with all being private.  
