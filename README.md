@@ -91,7 +91,7 @@ More detailed information about endpoints [here][server-endpoints]
 `GET auth /v1/items`: Retrieve all items.  
 `GET auth /v1/items/{id}/`: Retrieve results matching the id
 `GET /v1/items/{id}/status`:  Check if a survey should be shown for the given item.  
-`POST /v1/items/{id}/events/impression`: Create an impression for the item.
+`POST /v1/items/{id}/events/impression`: Create an impression for the item.  
 `POST /v1/items/{id}/events/conversion`: Create a conversion for the item.
 
 #####Implementation Steps

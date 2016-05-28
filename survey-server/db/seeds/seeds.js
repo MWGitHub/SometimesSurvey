@@ -49,7 +49,7 @@ exports.seed = function(knex, Promise) {
     // Have 10 total articles
     const articles = 10;
     for (let id = 0; id < articles; ++id) {
-      // Have 100 total users see a survey
+      // Have 100 total users see each survey
       const users = 100;
       for (let j = 0; j < users; ++j) {
         const fingerprint = uuid.v4();

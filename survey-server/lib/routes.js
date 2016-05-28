@@ -26,6 +26,21 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: `${api.path}/items/{id}`,
+    config: {
+      auth: 'key',
+      handler: handlers.getItemEvents,
+      pre: [handlers.databaseCheck],
+      validate: {
+        params: {
+          id: Joi.number().integer().required(),
+        },
+        query: standard,
+      },
+    },
+  },
+  {
+    method: 'GET',
     path: `${api.path}/items/events/{type}`,
     config: {
       handler: handlers.logEvent,

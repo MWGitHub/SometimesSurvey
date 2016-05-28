@@ -58,3 +58,20 @@ test('test pagination', t => {
     t.fail(e);
   });
 });
+
+test('test item result retrieval', t => {
+  co(function* initialize() {
+    const server = new Server({ key: 'test' });
+    const instance = yield server.initialize();
+    const res = yield instance.inject(`${path}/items/6?key=test`);
+
+    t.equal(res.result.events.length, 125, 'check for right count');
+    t.equal(res.result.events[0].item_id, 6, 'check for right item');
+
+    yield server.stop();
+
+    t.end();
+  }).catch(e => {
+    t.fail(e);
+  });
+});
