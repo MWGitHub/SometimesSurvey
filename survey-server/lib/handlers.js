@@ -1,8 +1,44 @@
 const database = require('./database');
 const co = require('co');
 const Boom = require('boom');
+const schemer = require('./schemer');
+const _ = require('lodash');
+const Joi = require('joi');
+const uuid = require('node-uuid');
+const api = require('./api');
 
 const internals = {
+  EVENTS: {
+    IMPRESSION: 'reader-survey-impression',
+    CONVERSION: 'reader-survey-conversion',
+    CAPTURE: 'social-capture',
+    CLOSE: 'reader-survey-close',
+  },
+
+  EVENT_SHAPES: {
+    IMPRESSION: {},
+    CONVERSION: {
+      box: Joi.number().integer()
+        .min(1)
+        .max(10)
+        .required(),
+    },
+    CAPTURE: {
+      name: Joi.string().valid('readerSurvey').required(),
+      'after.survery': Joi.boolean().valid(true),
+    },
+    CLOSE: {},
+  },
+
+  isValidEvent(event, data) {
+    const key = internals.EVENTS_INVERSE[event];
+    if (!key) return false;
+
+    const shape = internals.EVENT_SHAPES[key];
+    const result = Joi.validate(data, shape);
+    return result.error === null;
+  },
+
   paginate(query, offset, limit) {
     let builder = query;
     if (limit && limit > 0) {
@@ -13,15 +49,27 @@ const internals = {
     }
     return builder;
   },
+
+  retrieveResults(query, request) {
+    return co(function* retrieve() {
+      const offset = request.query.offset || 0;
+      const limit = request.query.limit || 0;
+
+      const builder = internals.paginate(query, offset, limit);
+
+      const response = {
+        pagination: { offset, limit },
+        events: yield builder,
+      };
+      return response;
+    });
+  },
 };
 
+internals.EVENTS_INVERSE = _.invert(internals.EVENTS);
+
 module.exports = {
-  EVENTS: {
-    IMPRESSION: 'reader-survey-impression',
-    CONVERSION: 'reader-survey-conversion',
-    CAPTURE: 'social-capture',
-    CLOSE: 'reader-survey-close',
-  },
+  EVENTS: internals.EVENTS,
 
   databaseCheck(request, reply) {
     if (database.isConnected()) {
@@ -33,42 +81,95 @@ module.exports = {
 
   getEvents(request, reply) {
     return co(function* events() {
-      const offset = request.query.offset || 0;
-      const limit = request.query.limit || 0;
-
-      let query = database.knex().select().table('events');
-      query = internals.paginate(query, offset, limit);
-
-      const response = {
-        pagination: { offset, limit },
-        events: yield query,
-      };
+      const query = database.knex().select().table('events');
+      const response = yield internals.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   getItemEvents(request, reply) {
     return co(function* events() {
-      const offset = request.query.offset || 0;
-      const limit = request.query.limit || 0;
-
-      let query = database.knex().select().table('events')
+      const query = database.knex().select().table('events')
         .where('item_key', request.params.id);
-      query = internals.paginate(query, offset, limit);
-
-      const response = {
-        pagination: { offset, limit },
-        events: yield query,
-      };
+      const response = yield internals.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   getStatus(request, reply) {
-    reply();
+    const id = request.params.id;
+
+    return co(function* status() {
+      // Check if cookied against
+      const cookie = request.state[id];
+      if (cookie) {
+        return reply({
+          show: false,
+        });
+      }
+
+      const isShown = yield schemer.checkStatus(id);
+
+      return reply({
+        show: isShown,
+      });
+    }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   logEvent(request, reply) {
-    reply();
+    const id = request.params.id;
+    const event = request.payload.event;
+    const data = request.payload.data;
+
+    // Check if event shape is valid
+    const valid = internals.isValidEvent(event, data);
+    if (!valid) return reply(Boom.badRequest());
+
+    return co(function* log() {
+      // Check if item exists locally
+      const knex = database.knex();
+      let exists = yield knex('events').select().where('item_key', 'id')
+        .limit(1);
+      exists = exists.length > 0;
+
+      // Check if item exists remotely
+      if (!exists) exists = yield schemer.checkExists(id);
+
+      // Item key is not valid
+      if (!exists) return reply(Boom.badRequest());
+
+      // Make cookie on each impression
+      let makeCookie = false;
+      let fingerprint = null;
+      if (event === internals.EVENTS.IMPRESSION) {
+        makeCookie = true;
+        fingerprint = uuid.v4();
+      } else {
+        fingerprint = request.state[id];
+      }
+
+      // Do not allow events when impressions have not been made
+      if (!fingerprint) return reply(Boom.badRequest());
+
+      // Save event to database
+      const model = {
+        item_key: id,
+        fingerprint,
+        event,
+      };
+      if (data) {
+        model.data = data;
+      }
+      yield knex('events').insert(model);
+
+      if (makeCookie) {
+        return reply().state(id, fingerprint, {
+          ttl: api.ttl,
+          password: api.password,
+          encoding: 'iron',
+        });
+      }
+      return reply();
+    }).catch(e => reply(Boom.badImplementation(e)));
   },
 };

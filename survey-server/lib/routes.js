@@ -44,7 +44,6 @@ module.exports = [
     path: `${api.path}/items/{id}/status`,
     config: {
       handler: handlers.getStatus,
-      pre: [handlers.databaseCheck],
       validate: {
         params: {
           id: Joi.string().required(),

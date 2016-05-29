@@ -4,6 +4,7 @@ const routes = require('./routes');
 const keyAuth = require('./key-auth');
 const knexfile = require('../knexfile');
 const database = require('./database');
+const api = require('./api');
 
 class Server {
   constructor(inputOptions) {
@@ -13,6 +14,7 @@ class Server {
       useDatabase: true,
       databaseConfig: knexfile,
       scheme: null,
+      password: 'change this key to something 32 characters or longer!',
     }, inputOptions);
 
     this._config = options;
@@ -35,6 +37,12 @@ Server.prototype.initialize = function initialize() {
 
   const server = this._server;
   const plugins = [
+    {
+      register: api,
+      options: {
+        password: this._config.password,
+      },
+    },
     {
       register: keyAuth,
       options: {

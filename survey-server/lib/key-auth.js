@@ -21,11 +21,11 @@ function keyAuth() {
   return scheme;
 }
 
-exports.register = function register(plugin, options, next) {
+exports.register = function register(server, options, next) {
   internals.key = options.key;
   assert.ok(internals.key);
 
-  plugin.auth.scheme('key', keyAuth);
+  server.auth.scheme('key', keyAuth);
   next();
 };
 

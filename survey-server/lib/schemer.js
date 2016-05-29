@@ -1,17 +1,19 @@
-const assert = require('assert');
-
 const internals = {};
 
 internals.simple = {
   show() {
-    return true;
+    return Promise.resolve(true);
+  },
+
+  exists() {
+    return Promise.resolve(true);
   },
 };
 
 const schemer = {
-  register(plugin, options, next) {
+  register(server, options, next) {
     internals.scheme = options.scheme || internals.simple;
-    assert.ok(internals.scheme);
+    internals.deployTime = options.deployTime || Date.now();
 
     if (!schemer.validScheme(internals.scheme)) {
       throw new TypeError('Invalid scheme format');
@@ -22,13 +24,17 @@ const schemer = {
 
   validScheme(scheme) {
     if (!scheme) return false;
-    if (!scheme.show) return false;
+    if (!scheme.show || !scheme.exists) return false;
 
     return true;
   },
 
   checkStatus(item) {
-    return internals.scheme.show(item);
+    return internals.scheme.show(item, internals.deployTime);
+  },
+
+  checkExists(item) {
+    return internals.scheme.exists(item, internals.deployTime);
   },
 };
 
