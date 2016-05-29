@@ -84,6 +84,24 @@ test('test item result retrieval', t => {
   });
 });
 
+test('test item result retrieval', t => {
+  const server = new Server({ key: 'test' });
+
+  co(function* initialize() {
+    const instance = yield server.initialize();
+    const res = yield instance.inject(`${path}/items/4/stats?key=test`);
+
+    t.equal(res.result.rating, 5.5);
+
+    yield server.stop();
+
+    t.end();
+  }).catch(e => {
+    server.stop();
+    t.fail(e);
+  });
+});
+
 test('test item status', t => {
   const server = new Server({ key: 'test' });
 

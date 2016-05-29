@@ -104,7 +104,8 @@ Each step creates tests before creating the implementation. Tests and examples t
     1. Authentication check on routes
     1. Item handlers and routes
     1. Events handlers and routes
-    1. Survey change broadcast
+    1. Special retrieval hanlders and routes
+    1. Survey change broadcast (Not implemented)
 1. Article Scheme
     1. Article validation
     1. Article survey condition checks

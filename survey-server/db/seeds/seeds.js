@@ -23,9 +23,7 @@ function create(knex) {
 
     conversion(key, fingerprint, value) {
       return query(EVENTS.CONVERSION, key, fingerprint, {
-        data: {
-          box: value
-        }
+        box: value
       });
     },
 
@@ -57,7 +55,7 @@ exports.seed = function(knex, Promise) {
         // Of those users one in 10 vote
         const voteRatio = 10;
         if (j % voteRatio === 0) {
-          const value = Math.floor(j / 10);
+          const value = Math.floor(j / 10) + 1;
           yield creator.conversion(key, fingerprint, value);
           // Of the ones that vote half like
           const likeRatio = 2;

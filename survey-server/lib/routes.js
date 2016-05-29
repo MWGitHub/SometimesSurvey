@@ -41,6 +41,20 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: `${api.path}/items/{id}/stats`,
+    config: {
+      auth: 'key',
+      handler: handlers.getItemStats,
+      pre: [handlers.databaseCheck],
+      validate: {
+        params: {
+          id: Joi.string().required(),
+        },
+      },
+    },
+  },
+  {
+    method: 'GET',
     path: `${api.path}/items/{id}/status`,
     config: {
       handler: handlers.getStatus,

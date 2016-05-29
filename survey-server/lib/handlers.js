@@ -106,6 +106,24 @@ module.exports = {
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
+  getItemStats(request, reply) {
+    return co(function* stats() {
+      const query = yield database.knex().raw(`
+        SELECT
+          AVG((data->>'box')::numeric)
+        FROM
+          events
+        WHERE
+          item_key = ? AND
+          (data->'box') IS NOT NULL
+      `, request.params.id);
+
+      return reply({
+        rating: parseFloat(query.rows[0].avg),
+      });
+    });
+  },
+
   getStatus(request, reply) {
     const id = request.params.id;
 
