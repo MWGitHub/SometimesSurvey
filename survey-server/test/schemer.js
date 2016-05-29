@@ -7,10 +7,18 @@ const yesScheme = {
   show() {
     return true;
   },
+
+  exists() {
+    return true;
+  },
 };
 
 const noScheme = {
   show() {
+    return false;
+  },
+
+  exists() {
     return false;
   },
 };

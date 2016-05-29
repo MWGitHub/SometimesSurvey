@@ -107,18 +107,26 @@ test('test item events', t => {
   const server = new Server({ key: 'test' });
 
   co(function* initialize() {
-    const instance = yield server.initialize();
+    const instance = yield server.start();
 
-    function makeEvent(event, data) {
-      const payload = { event };
-      if (data) {
-        payload.data = data;
-      }
-      return instance.inject({
+    function makeEvent(event, data, cookie) {
+      const request = {
         method: 'POST',
         url: `${path}/items/100/events`,
-        payload,
-      });
+        payload: {
+          event,
+        },
+      };
+      if (data) {
+        request.payload.data = data;
+      }
+      if (cookie) {
+        const main = cookie.split(';')[0];
+        request.headers = {
+          cookie: main,
+        };
+      }
+      return instance.inject(request);
     }
 
     function makeGet() {
@@ -126,12 +134,94 @@ test('test item events', t => {
     }
 
     let res = yield makeEvent(EVENTS.IMPRESSION);
+    const cookie = res.headers['set-cookie'][0];
     t.equal(res.statusCode, 200);
 
-    res = makeGet();
+    res = yield makeGet();
     t.equal(res.result.events.length, 1, 'check for right count');
     t.equal(res.result.events[0].item_key, '100', 'check for right item');
     t.equal(res.result.events[0].event, EVENTS.IMPRESSION);
+
+    res = yield makeEvent(EVENTS.CONVERSION, null);
+    t.equal(res.statusCode, 400, 'events without a cookie should reject');
+
+    // Test with valid conversion
+    res = yield makeEvent(EVENTS.CONVERSION, {
+      box: 5,
+    }, cookie);
+    t.equal(res.statusCode, 200);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 2, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CONVERSION);
+
+    // Test with invalid conversion
+    res = yield makeEvent(EVENTS.CONVERSION, {}, cookie);
+    t.equal(res.statusCode, 400);
+    res = yield makeEvent(EVENTS.CONVERSION, { box: 5 });
+    t.equal(res.statusCode, 400);
+
+    res = yield makeGet();
+    t.equal(res.result.events.length, 2, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CONVERSION);
+
+    // Test with capture
+    res = yield makeEvent(EVENTS.CAPTURE, {
+      name: 'readerSurvey',
+    }, cookie);
+    t.equal(res.statusCode, 200);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 3, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+
+    res = yield makeEvent(EVENTS.CAPTURE, {
+      name: 'readerSurvey',
+      'after.survey': true,
+    }, cookie);
+    t.equal(res.statusCode, 200);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 4, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+
+    // Invalid capture
+    res = yield makeEvent(EVENTS.CAPTURE, {}, cookie);
+    t.equal(res.statusCode, 400);
+    res = yield makeEvent(EVENTS.CAPTURE, { 'after.survey': true }, cookie);
+    t.equal(res.statusCode, 400);
+    res = yield makeEvent(EVENTS.CAPTURE, {
+      name: 'reader',
+      'after.survey': true,
+    }, cookie);
+    t.equal(res.statusCode, 400);
+    res = yield makeEvent(EVENTS.CAPTURE, {
+      name: 'readerSurvey',
+      'after.survey': false,
+    }, cookie);
+    t.equal(res.statusCode, 400);
+
+    res = yield makeGet();
+    t.equal(res.result.events.length, 4, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+
+    // Test with close
+    res = yield makeEvent(EVENTS.CLOSE, null, cookie);
+    t.equal(res.statusCode, 200);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 5, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CLOSE);
+
+    // Invalid close
+    res = yield makeEvent(EVENTS.CLOSE);
+    t.equal(res.statusCode, 400);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 5, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CLOSE);
+
+    // Invalid event
+    res = yield makeEvent('existentialcrisis');
+    t.equal(res.statusCode, 400);
+    res = yield makeGet();
+    t.equal(res.result.events.length, 5, 'check for right count');
+    t.equal(res.result.events[0].event, EVENTS.CLOSE);
 
     yield server.stop();
 

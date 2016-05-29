@@ -6,6 +6,7 @@ const _ = require('lodash');
 const Joi = require('joi');
 const uuid = require('node-uuid');
 const api = require('./api');
+const Iron = require('iron');
 
 const internals = {
   EVENTS: {
@@ -25,7 +26,7 @@ const internals = {
     },
     CAPTURE: {
       name: Joi.string().valid('readerSurvey').required(),
-      'after.survery': Joi.boolean().valid(true),
+      'after.survey': Joi.boolean().valid(true),
     },
     CLOSE: {},
   },
@@ -62,6 +63,15 @@ const internals = {
         events: yield builder,
       };
       return response;
+    });
+  },
+
+  unseal(cookie) {
+    return new Promise((resolve, reject) => {
+      Iron.unseal(cookie, api.password, Iron.defaults, (err, unsealed) => {
+        if (err) return reject(err);
+        return resolve(unsealed);
+      });
     });
   },
 };
@@ -122,7 +132,7 @@ module.exports = {
     const data = request.payload.data;
 
     // Check if event shape is valid
-    const valid = internals.isValidEvent(event, data);
+    const valid = internals.isValidEvent(event, data || {});
     if (!valid) return reply(Boom.badRequest());
 
     return co(function* log() {
@@ -144,8 +154,9 @@ module.exports = {
       if (event === internals.EVENTS.IMPRESSION) {
         makeCookie = true;
         fingerprint = uuid.v4();
-      } else {
-        fingerprint = request.state[id];
+      } else if (request.state[id]) {
+        const cookie = yield internals.unseal(request.state[id]);
+        fingerprint = cookie;
       }
 
       // Do not allow events when impressions have not been made

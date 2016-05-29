@@ -22,6 +22,11 @@ const schemer = {
     next();
   },
 
+  /**
+   * Check if a scheme is valid.
+   * @param  {Object} scheme the scheme to check.
+   * @return {Boolean}       true if the scheme is valid, false otherwise.
+   */
   validScheme(scheme) {
     if (!scheme) return false;
     if (!scheme.show || !scheme.exists) return false;
@@ -29,11 +34,25 @@ const schemer = {
     return true;
   },
 
-  checkStatus(item) {
+  /**
+   * Check the status of an item.
+   * @param  {String}   item   the item key to check.
+   * @param  {Object=}  scheme the scheme to use if given.
+   * @return {Boolean}         true if shown, false otherwise.
+   */
+  checkStatus(item, scheme) {
+    if (scheme) return scheme.show(item, internals.deployTime);
     return internals.scheme.show(item, internals.deployTime);
   },
 
-  checkExists(item) {
+  /**
+   * Check the existence of an item.
+   * @param  {String}   item   the item key to check.
+   * @param  {Object=}  scheme the scheme to use if given.
+   * @return {Boolean}         true if exists, false otherwise.
+   */
+  checkExists(item, scheme) {
+    if (scheme) return scheme.show(item, internals.deployTime);
     return internals.scheme.exists(item, internals.deployTime);
   },
 };
