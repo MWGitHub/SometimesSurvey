@@ -20,13 +20,18 @@ I chose Hapi due to the great documentation, ease of use, support by Walmart Lab
 **Frontend**  
 Deku will be used for rendering the component. The decision was based on the functional style promoting statelessness which can reduce complexity, good performance, and curiosity.
 
+CSS will be following the BEM model. It is a good way to increase readability and reusability is also increased by reducing the chance a change will affect other elements by accident.  
+
+PostCSS will be used to transform CSS and was chosen because one can choose only the plugins they want to install, such as plugins to enable emulate some of Sass' features. It is also simple to make a plugin for PostCSS.
+
 **Tracking**  
 Callbacks are used around tracking events to allow developers to choose how to deal with the events when they occur in the component. Impression and conversion events are also sent to the survey server to store the results if enabled.
 
 #####Data Model
 
 Survey Event Model  
-Fingerprint can be used to see more detailed user behavior. The fingerprint is not guaranteed to be unique but the collision chance is low enough for this case.
+Fingerprint can be used to see more detailed user behavior. The fingerprint is not guaranteed to be unique but the collision chance is low enough for this case.  
+Name on the survey allows retrieval of the survey by both id and name for easier access.
 
 ```
 surveys
@@ -52,23 +57,25 @@ events
 ```
 /
   example/
-    index.html
-    package.json
+    db/                 (for setting up the example survey server database)
+    lib/                (source for the example page)
+    style/              (style for the example page)
+    survey-server.js    (starting an example survey server)
+    index.html          (entry point for the example page)
   survey-server/
-    examples/
+    db/
+      migrations/
+      seeds/
     docs/
     lib/
     test/
     index.js
   survey-scheme-article/
-    lib/
-    test/
     index.js
+    test.js
   survey-component/  
-    examples/
-    lib/
-    test/
     index.js
+    test.js
 ```  
 
 The root will have three main folders, one for the server, one for the scheme to handle articles, and one for the component. Normally I would split these into different repositories since each are not directly dependent on any of the others. The example folder will install directly from the other folders in this case and will contain a full example of a site and survey.
