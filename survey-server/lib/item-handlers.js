@@ -11,7 +11,8 @@ module.exports = {
     const surveyID = request.params.survey_id;
     return co(function* event() {
       const query = database.knex().select().table('events')
-        .where('survey_id', surveyID);
+        .where('survey_id', surveyID)
+        .orderBy('id');
       const response = yield api.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
@@ -24,7 +25,8 @@ module.exports = {
         .where({
           survey_id: surveyID,
           item_key: request.params.id,
-        });
+        })
+        .orderBy('id');
       const response = yield api.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));

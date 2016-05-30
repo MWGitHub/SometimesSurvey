@@ -161,9 +161,10 @@ test('test item events', t => {
     t.equal(res.statusCode, 400, 'second impression should fail');
 
     res = yield makeGet();
-    t.equal(res.result.events.length, 1, 'check for right count');
-    t.equal(res.result.events[0].item_key, '100', 'check for right item');
-    t.equal(res.result.events[0].event, EVENTS.IMPRESSION);
+    let events = res.result.events;
+    t.equal(events.length, 1, 'check for right count');
+    t.equal(events[events.length - 1].item_key, '100', 'check for right item');
+    t.equal(events[events.length - 1].event, EVENTS.IMPRESSION);
 
     res = yield makeEvent(EVENTS.CONVERSION, null);
     t.equal(res.statusCode, 400, 'events without a cookie should reject');
@@ -174,8 +175,9 @@ test('test item events', t => {
     }, cookie);
     t.equal(res.statusCode, 200);
     res = yield makeGet();
-    t.equal(res.result.events.length, 2, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CONVERSION);
+    events = res.result.events;
+    t.equal(events.length, 2, 'check for right count');
+    t.equal(events[events.length - 1].event, EVENTS.CONVERSION);
 
     // Test with invalid conversion
     res = yield makeEvent(EVENTS.CONVERSION, {}, cookie);
@@ -184,8 +186,8 @@ test('test item events', t => {
     t.equal(res.statusCode, 400);
 
     res = yield makeGet();
-    t.equal(res.result.events.length, 2, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CONVERSION);
+    events = res.result.events;
+    t.equal(events.length, 2, 'check for right count');
 
     // Test with capture
     res = yield makeEvent(EVENTS.CAPTURE, {
@@ -193,8 +195,9 @@ test('test item events', t => {
     }, cookie);
     t.equal(res.statusCode, 200);
     res = yield makeGet();
-    t.equal(res.result.events.length, 3, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+    events = res.result.events;
+    t.equal(events.length, 3, 'check for right count');
+    t.equal(events[events.length - 1].event, EVENTS.CAPTURE);
 
     res = yield makeEvent(EVENTS.CAPTURE, {
       name: 'readerSurvey',
@@ -202,8 +205,9 @@ test('test item events', t => {
     }, cookie);
     t.equal(res.statusCode, 200);
     res = yield makeGet();
-    t.equal(res.result.events.length, 4, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+    events = res.result.events;
+    t.equal(events.length, 4, 'check for right count');
+    t.equal(events[events.length - 1].event, EVENTS.CAPTURE);
 
     // Invalid capture
     res = yield makeEvent(EVENTS.CAPTURE, {}, cookie);
@@ -222,29 +226,30 @@ test('test item events', t => {
     t.equal(res.statusCode, 400);
 
     res = yield makeGet();
-    t.equal(res.result.events.length, 4, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CAPTURE);
+    events = res.result.events;
+    t.equal(events.length, 4, 'check for right count');
 
     // Test with close
     res = yield makeEvent(EVENTS.CLOSE, null, cookie);
     t.equal(res.statusCode, 200);
     res = yield makeGet();
-    t.equal(res.result.events.length, 5, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CLOSE);
+    events = res.result.events;
+    t.equal(events.length, 5, 'check for right count');
+    t.equal(events[events.length - 1].event, EVENTS.CLOSE);
 
     // Invalid close
     res = yield makeEvent(EVENTS.CLOSE);
     t.equal(res.statusCode, 400);
     res = yield makeGet();
-    t.equal(res.result.events.length, 5, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CLOSE);
+    events = res.result.events;
+    t.equal(events.length, 5, 'check for right count');
 
     // Invalid event
     res = yield makeEvent('existentialcrisis');
     t.equal(res.statusCode, 400);
     res = yield makeGet();
-    t.equal(res.result.events.length, 5, 'check for right count');
-    t.equal(res.result.events[0].event, EVENTS.CLOSE);
+    events = res.result.events;
+    t.equal(events.length, 5, 'check for right count');
 
     yield server.stop();
 
