@@ -74,6 +74,7 @@ events
     index.js
     test.js
   survey-component/  
+    example/
     index.js
     test.js
 ```  

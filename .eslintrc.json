@@ -4,6 +4,8 @@
         "react"
     ],
     "rules": {
-      "no-underscore-dangle": ["error", { "allowAfterThis": true }]
+      "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+      "react/react-in-jsx-scope": 0,
+      "react/no-unknown-property": 0
     }
 }
