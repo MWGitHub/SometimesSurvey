@@ -63,6 +63,7 @@ module.exports = [
           name: Joi.string().required(),
           scheme: Joi.string().required(),
           question: Joi.string(),
+          deploy_time: Joi.date(),
         },
         query: key,
       },

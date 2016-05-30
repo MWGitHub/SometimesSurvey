@@ -22,6 +22,9 @@ module.exports = {
       data.deployed = request.payload.deployed;
       data.deploy_time = new Date();
     }
+    if (request.payload.deploy_time) {
+      data.deploy_time = request.payload.deploy_time;
+    }
 
     co(function* getSurvey() {
       const result = yield knex('surveys').insert(data, 'id');
