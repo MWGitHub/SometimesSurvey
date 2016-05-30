@@ -1,5 +1,6 @@
 const api = require('./api');
 const handlers = require('./handlers');
+const databaseCheck = require('./database').databaseCheck;
 const Joi = require('joi');
 
 const pagination = {
@@ -7,18 +8,72 @@ const pagination = {
   limit: Joi.number().integer(),
 };
 
-const standard = Object.assign({
+const key = {
   key: Joi.string().required(),
-}, pagination);
+};
+
+const standard = Object.assign({}, key, pagination);
+
+function surveyRoute(path, method, handler) {
+  return {
+    method,
+    path,
+    config: {
+      auth: 'key',
+      handler,
+      pre: [databaseCheck],
+      validate: {
+        params: {
+          survey_id: Joi.number().integer().required(),
+        },
+        query: key,
+      },
+    },
+  };
+}
 
 module.exports = [
+  {
+    method: 'GET',
+    path: `${api.path}/surveys`,
+    config: {
+      auth: 'key',
+      handler: handlers.getSurveys,
+      pre: [databaseCheck],
+      validate: {
+        query: key,
+      },
+    },
+  },
+  {
+    method: 'POST',
+    path: `${api.path}/surveys`,
+    config: {
+      auth: 'key',
+      handler: handlers.createSurvey,
+      pre: [databaseCheck],
+      validate: {
+        payload: {
+          scheme: Joi.string().required(),
+          question: Joi.string().required(),
+        },
+        query: key,
+      },
+    },
+  },
+  surveyRoute(`${api.path}/surveys/{survey_id}`, 'GET',
+    handlers.getSurvey),
+  surveyRoute(`${api.path}/surveys/{survey_id}/deploy`, 'POST',
+    handlers.deploySurvey),
+  surveyRoute(`${api.path}/surveys/{survey_id}/disable`, 'POST',
+    handlers.disableSurvey),
   {
     method: 'GET',
     path: `${api.path}/surveys/{survey_id}/items`,
     config: {
       auth: 'key',
       handler: handlers.getEvents,
-      pre: [handlers.databaseCheck],
+      pre: [databaseCheck],
       validate: {
         params: {
           survey_id: Joi.number().integer().required(),
@@ -33,7 +88,7 @@ module.exports = [
     config: {
       auth: 'key',
       handler: handlers.getItemEvents,
-      pre: [handlers.databaseCheck],
+      pre: [databaseCheck],
       validate: {
         params: {
           survey_id: Joi.number().integer().required(),
@@ -49,7 +104,7 @@ module.exports = [
     config: {
       auth: 'key',
       handler: handlers.getItemStats,
-      pre: [handlers.databaseCheck],
+      pre: [databaseCheck],
       validate: {
         params: {
           survey_id: Joi.number().integer().required(),
@@ -76,7 +131,7 @@ module.exports = [
     path: `${api.path}/surveys/{survey_id}/items/{id}/events`,
     config: {
       handler: handlers.logEvent,
-      pre: [handlers.databaseCheck],
+      pre: [databaseCheck],
       validate: {
         params: {
           survey_id: Joi.number().integer().required(),

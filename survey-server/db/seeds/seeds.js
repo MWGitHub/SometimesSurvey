@@ -1,7 +1,7 @@
 /* eslint-disable */
 const co = require('co');
 const uuid = require('node-uuid');
-const EVENTS = require('../../lib/handlers').EVENTS;
+const EVENTS = require('../../lib/events').EVENTS;
 
 function create(knex, surveyID) {
   function query(event, key, fingerprint, data) {

@@ -5,7 +5,7 @@ const internals = {
   knex: null,
 };
 
-module.exports = {
+const database = {
   connect(options) {
     if (!options) return;
 
@@ -25,4 +25,13 @@ module.exports = {
     if (this.isConnected()) internals.knex.destroy();
   },
 
+  databaseCheck(request, reply) {
+    if (database.isConnected()) {
+      return reply();
+    }
+
+    return reply().takeover();
+  },
 };
+
+module.exports = database;

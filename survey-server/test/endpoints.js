@@ -3,7 +3,7 @@ const co = require('co');
 const Server = require('../lib/server');
 
 const path = require('../lib/api').path;
-const EVENTS = require('../lib/handlers').EVENTS;
+const EVENTS = require('../lib/events').EVENTS;
 const surveyID = 1;
 
 test('test authentication on private routes', t => {

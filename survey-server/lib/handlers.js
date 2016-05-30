@@ -2,112 +2,50 @@ const database = require('./database');
 const co = require('co');
 const Boom = require('boom');
 const schemer = require('./schemer');
-const _ = require('lodash');
-const Joi = require('joi');
 const uuid = require('node-uuid');
 const api = require('./api');
-const Iron = require('iron');
-
-const internals = {
-  EVENTS: {
-    IMPRESSION: 'reader-survey-impression',
-    CONVERSION: 'reader-survey-conversion',
-    CAPTURE: 'social-capture',
-    CLOSE: 'reader-survey-close',
-  },
-
-  EVENT_SHAPES: {
-    IMPRESSION: {},
-    CONVERSION: {
-      box: Joi.number().integer()
-        .min(1)
-        .max(10)
-        .required(),
-    },
-    CAPTURE: {
-      name: Joi.string().valid('readerSurvey').required(),
-      'after.survey': Joi.boolean().valid(true),
-    },
-    CLOSE: {},
-  },
-
-  isValidEvent(event, data) {
-    const key = internals.EVENTS_INVERSE[event];
-    if (!key) return false;
-
-    const shape = internals.EVENT_SHAPES[key];
-    const result = Joi.validate(data, shape);
-    return result.error === null;
-  },
-
-  paginate(query, offset, limit) {
-    let builder = query;
-    if (limit && limit > 0) {
-      builder = builder.limit(limit);
-    }
-    if (offset && offset > 0) {
-      builder = builder.offset(offset);
-    }
-    return builder;
-  },
-
-  retrieveResults(query, request) {
-    return co(function* retrieve() {
-      const offset = request.query.offset || 0;
-      const limit = request.query.limit || 0;
-
-      const builder = internals.paginate(query, offset, limit);
-
-      const response = {
-        pagination: { offset, limit },
-        events: yield builder,
-      };
-      return response;
-    });
-  },
-
-  unseal(cookie) {
-    return new Promise((resolve, reject) => {
-      Iron.unseal(cookie, api.password, Iron.defaults, (err, unsealed) => {
-        if (err) return reject(err);
-        return resolve(unsealed);
-      });
-    });
-  },
-};
-
-internals.EVENTS_INVERSE = _.invert(internals.EVENTS);
+const events = require('./events');
 
 module.exports = {
-  EVENTS: internals.EVENTS,
+  getSurveys(request, reply) {
 
-  databaseCheck(request, reply) {
-    if (database.isConnected()) {
-      return reply();
-    }
+  },
 
-    return reply().takeover();
+  getSurvey(request, reply) {
+
+  },
+
+  createSurvey(request, reply) {
+
+  },
+
+  deploySurvey(request, reply) {
+
+  },
+
+  disableSurvey(request, reply) {
+
   },
 
   getEvents(request, reply) {
     const surveyID = request.params.survey_id;
-    return co(function* events() {
+    return co(function* event() {
       const query = database.knex().select().table('events')
         .where('survey_id', surveyID);
-      const response = yield internals.retrieveResults(query, request);
+      const response = yield api.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   getItemEvents(request, reply) {
     const surveyID = request.params.survey_id;
-    return co(function* events() {
+    return co(function* event() {
       const query = database.knex().select().table('events')
         .where({
           survey_id: surveyID,
           item_key: request.params.id,
         });
-      const response = yield internals.retrieveResults(query, request);
+      const response = yield api.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
@@ -169,12 +107,12 @@ module.exports = {
     const data = request.payload.data;
 
     // Check if event shape is valid
-    const valid = internals.isValidEvent(event, data || {});
+    const valid = events.isValidEvent(event, data || {});
     if (!valid) return reply(Boom.badRequest());
 
     return co(function* log() {
       // Make sure not making an impression when a cookie is present
-      if (event === internals.EVENTS.IMPRESSION && request.state[surveyID]) {
+      if (event === events.EVENTS.IMPRESSION && request.state[surveyID]) {
         return reply(Boom.badRequest());
       }
 
@@ -198,11 +136,11 @@ module.exports = {
       // Make cookie on each impression
       let makeCookie = false;
       let fingerprint = null;
-      if (event === internals.EVENTS.IMPRESSION) {
+      if (event === events.EVENTS.IMPRESSION) {
         makeCookie = true;
         fingerprint = uuid.v4();
       } else if (request.state[surveyID]) {
-        const cookie = yield internals.unseal(request.state[surveyID]);
+        const cookie = yield api.unseal(request.state[surveyID]);
         fingerprint = cookie;
       }
 

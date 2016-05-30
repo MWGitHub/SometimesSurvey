@@ -91,10 +91,16 @@ The flow will be in this order:
 Private endpoints require authentication.
 More detailed information about endpoints [here][server-endpoints]
 
-`GET auth /v1/items`: Retrieve all items.  
-`GET auth /v1/items/{id}/`: Retrieve results matching the id  
-`GET /v1/items/{id}/status`:  Check if a survey should be shown for the given item.  
-`POST /v1/items/{id}/events`: Create an event for the item.  
+`GET  auth /v1/surveys/`: Retrieve all surveys.  
+`POST auth /v1/surveys/`: Create a new survey.  
+`GET  auth /v1/surveys/{survey_id}`: Retrieve a single survey info.  
+`POST auth /v1/surveys/{survey_id}/deploy`: Deploy a survey.  
+`POST auth /v1/surveys/{survey_id}/disable`: Disable a survey.  
+
+`GET auth /v1/surveys/{survey_id}/items`: Retrieve all items.  
+`GET auth /v1/surveys/{survey_id}/items/{id}/`: Retrieve results matching the id  
+`GET /v1/surveys/{survey_id}/items/{id}/status`:  Check if a survey should be shown for the given item.  
+`POST /v1/surveys/{survey_id}/items/{id}/events`: Create an event for the item.  
 
 #####Implementation Steps
 
