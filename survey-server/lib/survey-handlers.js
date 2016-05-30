@@ -46,10 +46,11 @@ module.exports = {
     const knex = database.knex();
     const id = request.params.survey_id;
     const check = typeof id === 'string' ? 'name' : 'id';
+    const date = request.payload.deploy_time || new Date();
     co(function* deploySurvey() {
       const result = yield knex('surveys').where(check, id).update({
         deployed: true,
-        deploy_time: new Date(),
+        deploy_time: date,
       });
 
       return reply(result);

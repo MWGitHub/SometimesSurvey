@@ -1,5 +1,6 @@
 const test = require('tape');
 const co = require('co');
+const moment = require('moment');
 const Server = require('../lib/server');
 
 const path = require('../lib/api').path;
@@ -47,6 +48,7 @@ test('test survey creation', t => {
   const server = new Server({ key: 'test' });
 
   co(function* creation() {
+    const date = moment().subtract(5, 'days').toDate();
     const instance = yield server.initialize();
     let res = yield instance.inject({
       method: 'POST',
@@ -55,14 +57,18 @@ test('test survey creation', t => {
         name: 'test',
         scheme: 'test',
         question: 'quest',
+        deploy_time: date,
       },
     });
     const id = res.result.id;
 
     res = yield instance.inject(`${path}/surveys?key=test`);
-    t.equal(res.result.surveys.length, 3, 'check for right count');
-    t.equal(res.result.surveys[2].scheme, 'test', 'check for right survey');
-    t.equal(res.result.surveys[2].id, id, 'check for right survey');
+    const surveys = res.result.surveys;
+    t.equal(surveys.length, 3, 'check for right count');
+    t.equal(surveys[surveys.length - 1].scheme, 'test', 'check for right survey');
+    t.equal(surveys[surveys.length - 1].id, id, 'check for right survey');
+    t.equal(surveys[surveys.length - 1].deploy_time.toString(),
+      date.toString(), 'check for right time');
 
     yield server.stop();
 
@@ -99,6 +105,7 @@ test('test single survey deployment', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
+    const date = moment().subtract(3, 'days');
 
     let res = yield instance.inject(`${path}/surveys/2?key=test`);
     t.equal(res.result.deployed, false, 'check for survey status');
@@ -106,10 +113,15 @@ test('test single survey deployment', t => {
     res = yield instance.inject({
       method: 'POST',
       url: `${path}/surveys/2/deploy?key=test`,
+      payload: {
+        deploy_time: date,
+      },
     });
 
     res = yield instance.inject(`${path}/surveys/2?key=test`);
     t.equal(res.result.deployed, true, 'check for survey status');
+    t.equal(res.result.deploy_time.toString(),
+      date.toDate().toString(), 'check for correct deploy time');
 
     yield server.stop();
 

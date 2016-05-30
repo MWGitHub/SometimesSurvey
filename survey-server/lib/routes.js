@@ -20,8 +20,9 @@ const surveyIdValidation = Joi.alternatives().try(
   Joi.string().required()
 );
 
-function surveyRoute(path, method, handler) {
-  return {
+// Create a survey route.
+function surveyRoute(path, method, handler, payload) {
+  const result = {
     method,
     path,
     config: {
@@ -36,6 +37,10 @@ function surveyRoute(path, method, handler) {
       },
     },
   };
+  if (payload) {
+    result.config.validate.payload = payload;
+  }
+  return result;
 }
 
 module.exports = [
@@ -72,7 +77,9 @@ module.exports = [
   surveyRoute(`${api.path}/surveys/{survey_id}`, 'GET',
     surveyHandlers.getSurvey),
   surveyRoute(`${api.path}/surveys/{survey_id}/deploy`, 'POST',
-    surveyHandlers.deploySurvey),
+    surveyHandlers.deploySurvey, {
+      deploy_time: Joi.date(),
+    }),
   surveyRoute(`${api.path}/surveys/{survey_id}/disable`, 'POST',
     surveyHandlers.disableSurvey),
   {
