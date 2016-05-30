@@ -26,7 +26,7 @@ test('test authentication on private routes', t => {
   });
 });
 
-test('test all survey retrieval', t => {
+test('test all events retrieval', t => {
   const server = new Server({ key: 'test' });
 
   co(function* initialize() {

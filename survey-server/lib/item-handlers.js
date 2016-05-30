@@ -7,26 +7,6 @@ const api = require('./api');
 const events = require('./events');
 
 module.exports = {
-  getSurveys(request, reply) {
-
-  },
-
-  getSurvey(request, reply) {
-
-  },
-
-  createSurvey(request, reply) {
-
-  },
-
-  deploySurvey(request, reply) {
-
-  },
-
-  disableSurvey(request, reply) {
-
-  },
-
   getEvents(request, reply) {
     const surveyID = request.params.survey_id;
     return co(function* event() {
@@ -67,7 +47,7 @@ module.exports = {
       return reply({
         rating: parseFloat(query.rows[0].avg),
       });
-    });
+    }).catch(e => reply(Boom.badRequest(e)));
   },
 
   getStatus(request, reply) {

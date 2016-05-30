@@ -13,7 +13,6 @@ internals.simple = {
 const schemer = {
   register(server, options, next) {
     internals.schemes = options.schemes || { simple: internals.simple };
-    internals.deployTime = options.deployTime || Date.now();
 
     for (let i = 0, keys = Object.keys(internals.schemes); i < keys.length; ++i) {
       const scheme = internals.schemes[keys[i]];
@@ -41,18 +40,19 @@ const schemer = {
    * Check the status of an item.
    * @param  {String}          item   the item key to check.
    * @param  {Object|String=}  scheme the scheme or scheme key to use if given.
+   * @param  {Date}            deployTime the time the survey was deployed.
    * @return {Boolean}         true if shown, false otherwise.
    */
-  checkStatus(item, scheme) {
+  checkStatus(item, scheme, deployTime) {
     if (scheme) {
       if (typeof scheme === 'string') {
         if (!internals.schemes[scheme]) return false;
 
-        return internals.schemes[scheme].show(item, internals.deployTime);
+        return internals.schemes[scheme].show(item, deployTime);
       }
-      return scheme.show(item, internals.deployTime);
+      return scheme.show(item, deployTime);
     }
-    return internals.scheme.show(item, internals.deployTime);
+    return internals.scheme.show(item, deployTime);
   },
 
   /**
@@ -66,11 +66,11 @@ const schemer = {
       if (typeof scheme === 'string') {
         if (!internals.schemes[scheme]) return false;
 
-        return internals.schemes[scheme].exists(item, internals.deployTime);
+        return internals.schemes[scheme].exists(item);
       }
-      return scheme.exists(item, internals.deployTime);
+      return scheme.exists(item);
     }
-    return internals.scheme.exists(item, internals.deployTime);
+    return internals.scheme.exists(item);
   },
 };
 
