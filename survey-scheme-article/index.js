@@ -1,5 +1,6 @@
 const co = require('co');
 const moment = require('moment');
+const seed = require('./seed');
 
 function check(options, item, deployTime) {
   const old = options.old;
@@ -78,4 +79,5 @@ function scheme(onRetrieve, options) {
   };
 }
 
-module.exports = scheme;
+module.exports.scheme = scheme;
+module.exports.seed = seed;

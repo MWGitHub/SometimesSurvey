@@ -5,12 +5,15 @@
   "main": "simple.js",
   "scripts": {
     "start": "node survey-server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "populate": "knex migrate:latest && knex seed:run"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "moment": "^2.13.0",
+    "survey-scheme-article": "file:///Users/mw/projects/apps/sometimes-survey/survey-scheme-article",
     "survey-server": "file:///Users/mw/projects/apps/sometimes-survey/survey-server"
   }
 }

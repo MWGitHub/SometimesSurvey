@@ -5,7 +5,7 @@ const seed = require('./seed');
 const articles = seed.articles;
 const deploy = seed.deploy;
 
-const scheme = require('./index')(key => Promise.resolve(articles[key]));
+const scheme = require('./index').scheme(key => Promise.resolve(articles[key]));
 
 test('it should always show', t => {
   t.plan(1);
