@@ -50,12 +50,14 @@ exports.seed = function(knex, Promise) {
     // Create a survey to use
     const results = yield knex('surveys').insert([
       {
+        name: 'simple',
         scheme: 'simple',
         question: 'Was this article worth your time?',
         deployed: true,
         deploy_time: new Date(),
       },
       {
+        name: 'inactive',
         scheme: 'inactive',
         question: 'something',
         deployed: false,

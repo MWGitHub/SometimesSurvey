@@ -52,6 +52,7 @@ test('test survey creation', t => {
       method: 'POST',
       url: `${path}/surveys?key=test`,
       payload: {
+        name: 'test',
         scheme: 'test',
         question: 'quest',
       },
@@ -77,8 +78,11 @@ test('test single survey retrieval', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    const res = yield instance.inject(`${path}/surveys/1?key=test`);
 
+    let res = yield instance.inject(`${path}/surveys/1?key=test`);
+    t.equal(res.result.scheme, 'simple', 'check for right survey');
+
+    res = yield instance.inject(`${path}/surveys/simple?key=test`);
     t.equal(res.result.scheme, 'simple', 'check for right survey');
 
     yield server.stop();
@@ -122,7 +126,7 @@ test('test single survey disabling', t => {
   co(function* initialize() {
     const instance = yield server.initialize();
 
-    let res = yield instance.inject(`${path}/surveys/1?key=test`);
+    let res = yield instance.inject(`${path}/surveys/simple?key=test`);
     t.equal(res.result.deployed, true, 'check for survey status');
 
     res = yield instance.inject({

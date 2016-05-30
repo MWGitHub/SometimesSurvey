@@ -1,15 +1,11 @@
 const database = require('./database');
 const co = require('co');
 const Boom = require('boom');
-const schemer = require('./schemer');
-const uuid = require('node-uuid');
-const api = require('./api');
-const events = require('./events');
 
 module.exports = {
   getSurveys(request, reply) {
     const knex = database.knex();
-    co(function* () {
+    co(function* getSurveys() {
       const result = yield knex('surveys').select();
       reply({ surveys: result });
     }).catch(e => reply(Boom.badRequest(e)));
@@ -35,8 +31,9 @@ module.exports = {
   getSurvey(request, reply) {
     const knex = database.knex();
     const id = request.params.survey_id;
-    co(function* () {
-      const result = yield knex('surveys').first().where('id', id);
+    const check = typeof id === 'string' ? 'name' : 'id';
+    co(function* getSurvey() {
+      const result = yield knex('surveys').first().where(check, id);
       reply(result);
     }).catch(e => reply(Boom.badRequest(e)));
   },
@@ -44,8 +41,9 @@ module.exports = {
   deploySurvey(request, reply) {
     const knex = database.knex();
     const id = request.params.survey_id;
+    const check = typeof id === 'string' ? 'name' : 'id';
     co(function* deploySurvey() {
-      const result = yield knex('surveys').where('id', id).update({
+      const result = yield knex('surveys').where(check, id).update({
         deployed: true,
         deploy_time: new Date(),
       });
@@ -57,8 +55,9 @@ module.exports = {
   disableSurvey(request, reply) {
     const knex = database.knex();
     const id = request.params.survey_id;
+    const check = typeof id === 'string' ? 'name' : 'id';
     co(function* deploySurvey() {
-      const result = yield knex('surveys').where('id', id).update({
+      const result = yield knex('surveys').where(check, id).update({
         deployed: false,
       });
 

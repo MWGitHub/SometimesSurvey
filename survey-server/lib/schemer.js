@@ -37,40 +37,40 @@ const schemer = {
   },
 
   /**
-   * Check the status of an item.
-   * @param  {String}          item   the item key to check.
+   * Check the status of an key.
+   * @param  {String}          key   the key to check.
    * @param  {Object|String=}  scheme the scheme or scheme key to use if given.
    * @param  {Date}            deployTime the time the survey was deployed.
    * @return {Boolean}         true if shown, false otherwise.
    */
-  checkStatus(item, scheme, deployTime) {
+  checkStatus(key, scheme, deployTime) {
     if (scheme) {
       if (typeof scheme === 'string') {
         if (!internals.schemes[scheme]) return false;
 
-        return internals.schemes[scheme].show(item, deployTime);
+        return internals.schemes[scheme].show(key, deployTime);
       }
-      return scheme.show(item, deployTime);
+      return scheme.show(key, deployTime);
     }
-    return internals.scheme.show(item, deployTime);
+    return internals.scheme.show(key, deployTime);
   },
 
   /**
-   * Check the existence of an item.
-   * @param  {String}   item          the item key to check.
+   * Check the existence of an key.
+   * @param  {String}   key          the key to check.
    * @param  {Object|String=}  scheme the scheme or scheme key to use if given.
    * @return {Boolean}         true if exists, false otherwise.
    */
-  checkExists(item, scheme) {
+  checkExists(key, scheme) {
     if (scheme) {
       if (typeof scheme === 'string') {
         if (!internals.schemes[scheme]) return false;
 
-        return internals.schemes[scheme].exists(item);
+        return internals.schemes[scheme].exists(key);
       }
-      return scheme.exists(item);
+      return scheme.exists(key);
     }
-    return internals.scheme.exists(item);
+    return internals.scheme.exists(key);
   },
 };
 

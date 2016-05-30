@@ -15,6 +15,11 @@ const key = {
 
 const standard = Object.assign({}, key, pagination);
 
+const surveyIdValidation = Joi.alternatives().try(
+  Joi.number().integer().required(),
+  Joi.string().required()
+);
+
 function surveyRoute(path, method, handler) {
   return {
     method,
@@ -25,7 +30,7 @@ function surveyRoute(path, method, handler) {
       pre: [databaseCheck],
       validate: {
         params: {
-          survey_id: Joi.number().integer().required(),
+          survey_id: surveyIdValidation,
         },
         query: key,
       },
@@ -55,6 +60,7 @@ module.exports = [
       pre: [databaseCheck],
       validate: {
         payload: {
+          name: Joi.string().required(),
           scheme: Joi.string().required(),
           question: Joi.string().required(),
         },

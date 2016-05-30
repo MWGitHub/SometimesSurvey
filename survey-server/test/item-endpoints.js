@@ -1,6 +1,7 @@
 const test = require('tape');
 const co = require('co');
 const Server = require('../lib/server');
+const database = require('../lib/database');
 
 const path = require('../lib/api').path;
 const EVENTS = require('../lib/events').EVENTS;

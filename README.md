@@ -29,6 +29,7 @@ Fingerprint can be used to see more detailed user behavior. The fingerprint is n
 ```
 surveys
   integer (pk)    - id
+  string          - name (unique)
   string          - scheme
   string          - question
   boolean         - deployed
@@ -48,24 +49,27 @@ events
 #####Folder Structure
 ```
 /
-  survey-server
+  example/
+    index.html
+    package.json
+  survey-server/
     examples/
     docs/
     lib/
     test/
     index.js
-  survey-scheme-article
+  survey-scheme-article/
     lib/
     test/
     index.js
-  survey-component  
+  survey-component/  
     examples/
     lib/
     test/
     index.js
 ```  
 
-The root will have three folders, one for the server, one for the scheme to handle articles, and one for the component. Normally I would split these into different repositories since each are not directly dependent on any of the others.
+The root will have three main folders, one for the server, one for the scheme to handle articles, and one for the component. Normally I would split these into different repositories since each are not directly dependent on any of the others. The example folder will install directly from the other folders in this case and will contain a full example of a site and survey.
 
 Each will have fake responses for handling article endpoints and analytics endpoints for testing and examples.
 

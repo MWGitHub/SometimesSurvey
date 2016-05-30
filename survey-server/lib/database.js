@@ -22,7 +22,7 @@ const database = {
   },
 
   close() {
-    if (this.isConnected()) internals.knex.destroy();
+    if (database.isConnected()) internals.knex.destroy();
   },
 
   databaseCheck(request, reply) {

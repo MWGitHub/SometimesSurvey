@@ -68,7 +68,9 @@ module.exports = {
         const knex = database.knex();
         const survey = yield knex('surveys').first().where('id', surveyID);
         if (!survey) return false;
-        isShown = yield schemer.checkStatus(id, survey.scheme);
+        isShown = yield schemer.checkStatus(
+          id, survey.scheme, survey.deploy_time
+        );
       } else {
         isShown = yield schemer.checkStatus(id);
       }
