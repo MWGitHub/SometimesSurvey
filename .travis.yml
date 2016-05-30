@@ -1,0 +1,27 @@
+language: node_js
+node_js:
+  - "6.2"
+services:
+  - postgresql
+env:
+  global:
+    - NODE_ENV=test
+    - pg_user=postgres
+    - pg_host=localhost
+
+install:
+  - cd survey-server
+  - npm install
+  - cd ..
+  - cd survey-scheme-article
+  - npm install
+  - cd ..
+before_script:
+  - psql -c 'create database sometimes_survey_test;' -U postgres
+script:
+  - cd survey-server
+  - npm run migrate && npm run seed
+  - npm test
+  - cd ..
+  - cd survey-scheme-article
+  - npm test
