@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/MWGitHub/sometimes-survey.svg?branch=master)](https://travis-ci.org/MWGitHub/sometimes-survey)
+
 # sometimes-survey
 
 ###Architecture
