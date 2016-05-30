@@ -14,6 +14,7 @@ module.exports = {
   createSurvey(request, reply) {
     const knex = database.knex();
     const data = {
+      name: request.payload.name,
       scheme: request.payload.scheme,
     };
     if (request.payload.question) data.question = request.payload.question;

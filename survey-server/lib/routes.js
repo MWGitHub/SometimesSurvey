@@ -62,7 +62,7 @@ module.exports = [
         payload: {
           name: Joi.string().required(),
           scheme: Joi.string().required(),
-          question: Joi.string().required(),
+          question: Joi.string(),
         },
         query: key,
       },

@@ -12,5 +12,4 @@ test('test server start and stop', t => {
     })
     .then(() => t.pass('server stop'))
     .catch(e => t.fail(e));
-
 });

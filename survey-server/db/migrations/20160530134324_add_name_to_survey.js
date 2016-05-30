@@ -16,6 +16,13 @@ exports.up = function(knex, Promise) {
       yield knex.raw(`
         ALTER TABLE
           surveys
+        ALTER COLUMN
+          name SET NOT NULL
+      `);
+
+      yield knex.raw(`
+        ALTER TABLE
+          surveys
         ADD UNIQUE
           (name)
       `);
