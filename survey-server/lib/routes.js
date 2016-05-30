@@ -14,25 +14,29 @@ const standard = Object.assign({
 module.exports = [
   {
     method: 'GET',
-    path: `${api.path}/items`,
+    path: `${api.path}/surveys/{survey_id}/items`,
     config: {
       auth: 'key',
       handler: handlers.getEvents,
       pre: [handlers.databaseCheck],
       validate: {
+        params: {
+          survey_id: Joi.number().integer().required(),
+        },
         query: standard,
       },
     },
   },
   {
     method: 'GET',
-    path: `${api.path}/items/{id}`,
+    path: `${api.path}/surveys/{survey_id}/items/{id}`,
     config: {
       auth: 'key',
       handler: handlers.getItemEvents,
       pre: [handlers.databaseCheck],
       validate: {
         params: {
+          survey_id: Joi.number().integer().required(),
           id: Joi.string().required(),
         },
         query: standard,
@@ -41,13 +45,14 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${api.path}/items/{id}/stats`,
+    path: `${api.path}/surveys/{survey_id}/items/{id}/stats`,
     config: {
       auth: 'key',
       handler: handlers.getItemStats,
       pre: [handlers.databaseCheck],
       validate: {
         params: {
+          survey_id: Joi.number().integer().required(),
           id: Joi.string().required(),
         },
       },
@@ -55,11 +60,12 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: `${api.path}/items/{id}/status`,
+    path: `${api.path}/surveys/{survey_id}/items/{id}/status`,
     config: {
       handler: handlers.getStatus,
       validate: {
         params: {
+          survey_id: Joi.number().integer().required(),
           id: Joi.string().required(),
         },
       },
@@ -67,12 +73,13 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: `${api.path}/items/{id}/events`,
+    path: `${api.path}/surveys/{survey_id}/items/{id}/events`,
     config: {
       handler: handlers.logEvent,
       pre: [handlers.databaseCheck],
       validate: {
         params: {
+          survey_id: Joi.number().integer().required(),
           id: Joi.string().required(),
         },
         payload: {

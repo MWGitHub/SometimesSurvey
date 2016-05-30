@@ -12,11 +12,14 @@ internals.simple = {
 
 const schemer = {
   register(server, options, next) {
-    internals.scheme = options.scheme || internals.simple;
+    internals.schemes = options.schemes || { simple: internals.simple };
     internals.deployTime = options.deployTime || Date.now();
 
-    if (!schemer.validScheme(internals.scheme)) {
-      throw new TypeError('Invalid scheme format');
+    for (let i = 0, keys = Object.keys(internals.schemes); i < keys.length; ++i) {
+      const scheme = internals.schemes[keys[i]];
+      if (!schemer.validScheme(scheme)) {
+        throw new TypeError('Invalid scheme format');
+      }
     }
 
     next();
@@ -36,23 +39,37 @@ const schemer = {
 
   /**
    * Check the status of an item.
-   * @param  {String}   item   the item key to check.
-   * @param  {Object=}  scheme the scheme to use if given.
+   * @param  {String}          item   the item key to check.
+   * @param  {Object|String=}  scheme the scheme or scheme key to use if given.
    * @return {Boolean}         true if shown, false otherwise.
    */
   checkStatus(item, scheme) {
-    if (scheme) return scheme.show(item, internals.deployTime);
+    if (scheme) {
+      if (typeof scheme === 'string') {
+        if (!internals.schemes[scheme]) return false;
+
+        return internals.schemes[scheme].show(item, internals.deployTime);
+      }
+      return scheme.show(item, internals.deployTime);
+    }
     return internals.scheme.show(item, internals.deployTime);
   },
 
   /**
    * Check the existence of an item.
-   * @param  {String}   item   the item key to check.
-   * @param  {Object=}  scheme the scheme to use if given.
+   * @param  {String}   item          the item key to check.
+   * @param  {Object|String=}  scheme the scheme or scheme key to use if given.
    * @return {Boolean}         true if exists, false otherwise.
    */
   checkExists(item, scheme) {
-    if (scheme) return scheme.show(item, internals.deployTime);
+    if (scheme) {
+      if (typeof scheme === 'string') {
+        if (!internals.schemes[scheme]) return false;
+
+        return internals.schemes[scheme].exists(item, internals.deployTime);
+      }
+      return scheme.exists(item, internals.deployTime);
+    }
     return internals.scheme.exists(item, internals.deployTime);
   },
 };

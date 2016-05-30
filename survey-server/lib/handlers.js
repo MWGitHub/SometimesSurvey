@@ -90,23 +90,30 @@ module.exports = {
   },
 
   getEvents(request, reply) {
+    const surveyID = request.params.survey_id;
     return co(function* events() {
-      const query = database.knex().select().table('events');
+      const query = database.knex().select().table('events')
+        .where('survey_id', surveyID);
       const response = yield internals.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   getItemEvents(request, reply) {
+    const surveyID = request.params.survey_id;
     return co(function* events() {
       const query = database.knex().select().table('events')
-        .where('item_key', request.params.id);
+        .where({
+          survey_id: surveyID,
+          item_key: request.params.id,
+        });
       const response = yield internals.retrieveResults(query, request);
       return reply(response);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
   getItemStats(request, reply) {
+    const surveyID = request.params.survey_id;
     return co(function* stats() {
       const query = yield database.knex().raw(`
         SELECT
@@ -114,9 +121,10 @@ module.exports = {
         FROM
           events
         WHERE
+          survey_id = ? AND
           item_key = ? AND
           (data->'box') IS NOT NULL
-      `, request.params.id);
+      `, [surveyID, request.params.id]);
 
       return reply({
         rating: parseFloat(query.rows[0].avg),
@@ -125,18 +133,28 @@ module.exports = {
   },
 
   getStatus(request, reply) {
+    const surveyID = request.params.survey_id;
     const id = request.params.id;
 
     return co(function* status() {
       // Check if cookied against
-      const cookie = request.state[id];
+      const cookie = request.state[surveyID];
       if (cookie) {
         return reply({
           show: false,
         });
       }
 
-      const isShown = yield schemer.checkStatus(id);
+      let isShown = false;
+      if (database.isConnected()) {
+        const knex = database.knex();
+        const survey = yield knex('surveys').first().where('id', surveyID);
+        if (!survey) return false;
+        isShown = yield schemer.checkStatus(id, survey.scheme);
+      } else {
+        isShown = yield schemer.checkStatus(id);
+      }
+
 
       return reply({
         show: isShown,
@@ -145,6 +163,7 @@ module.exports = {
   },
 
   logEvent(request, reply) {
+    const surveyID = request.params.survey_id;
     const id = request.params.id;
     const event = request.payload.event;
     const data = request.payload.data;
@@ -154,14 +173,24 @@ module.exports = {
     if (!valid) return reply(Boom.badRequest());
 
     return co(function* log() {
+      // Make sure not making an impression when a cookie is present
+      if (event === internals.EVENTS.IMPRESSION && request.state[surveyID]) {
+        return reply(Boom.badRequest());
+      }
+
       // Check if item exists locally
       const knex = database.knex();
-      let exists = yield knex('events').select().where('item_key', 'id')
+      let exists = yield knex('events').select()
+        .where({
+          survey_id: surveyID,
+          item_key: id,
+        })
         .limit(1);
       exists = exists.length > 0;
 
       // Check if item exists remotely
-      if (!exists) exists = yield schemer.checkExists(id);
+      const survey = yield knex('surveys').first().where('id', surveyID);
+      if (!exists) exists = yield schemer.checkExists(id, survey.scheme);
 
       // Item key is not valid
       if (!exists) return reply(Boom.badRequest());
@@ -172,8 +201,8 @@ module.exports = {
       if (event === internals.EVENTS.IMPRESSION) {
         makeCookie = true;
         fingerprint = uuid.v4();
-      } else if (request.state[id]) {
-        const cookie = yield internals.unseal(request.state[id]);
+      } else if (request.state[surveyID]) {
+        const cookie = yield internals.unseal(request.state[surveyID]);
         fingerprint = cookie;
       }
 
@@ -185,6 +214,7 @@ module.exports = {
         item_key: id,
         fingerprint,
         event,
+        survey_id: surveyID,
       };
       if (data) {
         model.data = data;
@@ -192,7 +222,7 @@ module.exports = {
       yield knex('events').insert(model);
 
       if (makeCookie) {
-        return reply().state(id, fingerprint, {
+        return reply().state(surveyID, fingerprint, {
           ttl: api.ttl,
           password: api.password,
           encoding: 'iron',

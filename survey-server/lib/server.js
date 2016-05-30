@@ -13,7 +13,7 @@ class Server {
       key: 'change this key!',
       useDatabase: true,
       databaseConfig: knexfile,
-      scheme: null,
+      schemes: null,
       password: 'change this key to something 32 characters or longer!',
     }, inputOptions);
 
@@ -52,7 +52,7 @@ Server.prototype.initialize = function initialize() {
     {
       register: schemer,
       options: {
-        scheme: this._config.scheme,
+        schemes: this._config.schemes,
       },
     },
   ];

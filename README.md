@@ -3,13 +3,7 @@
 ###Architecture
 
 #####Overview
-General architecture will be a survey service that can handle multiple types of survey conditions for more than just articles if needed. The way to handle a type would be to provide schemes to the survey server which would handle validity and criteria checks.
-
-Only one scheme will be allowed per service unless.  
-
-Advantages of multiple schemes per service includes less resources used per scheme, shared data, higher API surface area, and higher program complexity.
-
-Advantages of a single scheme per service includes easier horizontal scaling, lower API surface area, lower complexity, and allows for different production  environments.
+General architecture will be a survey service that can handle multiple types of survey conditions for more than just articles if needed. The way to handle a type would be to provide schemes to the survey server which would handle validity and criteria checks. Schemes are chosen based on the survey property.
 
 Other services such as analytics that rely on the data can listen to events and replicate the data. This allows a more specific database to be used for different situations.
 
@@ -33,8 +27,17 @@ Survey Event Model
 Fingerprint can be used to see more detailed user behavior. The fingerprint is not guaranteed to be unique but the collision chance is low enough for this case.
 
 ```
+surveys
+  integer (pk)    - id
+  string          - scheme
+  string          - question
+  boolean         - deployed
+  datetime        - deploy_time
+  timestamp
+
 events
   integer (pk)    - id
+  integer (fk)    - survey_id
   string  (index) - item_key (id of the tracked item)
   uuid (index)    - fingerprint (fingerprint unique to the current user)
   string          - event

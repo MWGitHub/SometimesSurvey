@@ -4,16 +4,17 @@ const Server = require('../lib/server');
 
 const path = require('../lib/api').path;
 const EVENTS = require('../lib/handlers').EVENTS;
+const surveyID = 1;
 
 test('test authentication on private routes', t => {
   const server = new Server({ key: 'test' });
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    let res = yield instance.inject(`${path}/items`);
+    let res = yield instance.inject(`${path}/surveys/${surveyID}/items`);
     t.equal(res.statusCode, 401, 'prevented access');
 
-    res = yield instance.inject(`${path}/items?key=test`);
+    res = yield instance.inject(`${path}/surveys/${surveyID}/items?key=test`);
     t.equal(res.statusCode, 200, 'allowed access');
 
     yield server.stop();
@@ -30,7 +31,7 @@ test('test all survey retrieval', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    const res = yield instance.inject(`${path}/items?key=test`);
+    const res = yield instance.inject(`${path}/surveys/${surveyID}/items?key=test`);
 
     t.equal(res.result.events.length, 1250, 'check for right count');
     t.equal(res.result.events[0].item_key, '0', 'check for right item');
@@ -50,7 +51,7 @@ test('test pagination', t => {
   co(function* initialize() {
     const instance = yield server.initialize();
     const res = yield instance.inject(
-      `${path}/items?key=test&offset=250&limit=5`
+      `${path}/surveys/${surveyID}/items?key=test&offset=250&limit=5`
     );
 
     t.equal(res.result.events.length, 5, 'check for right count');
@@ -70,7 +71,7 @@ test('test item result retrieval', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    const res = yield instance.inject(`${path}/items/6?key=test`);
+    const res = yield instance.inject(`${path}/surveys/${surveyID}/items/6?key=test`);
 
     t.equal(res.result.events.length, 125, 'check for right count');
     t.equal(res.result.events[0].item_key, '6', 'check for right item');
@@ -89,7 +90,7 @@ test('test item result retrieval', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    const res = yield instance.inject(`${path}/items/4/stats?key=test`);
+    const res = yield instance.inject(`${path}/surveys/${surveyID}/items/4/stats?key=test`);
 
     t.equal(res.result.rating, 5.5);
 
@@ -107,7 +108,7 @@ test('test item status', t => {
 
   co(function* initialize() {
     const instance = yield server.initialize();
-    const res = yield instance.inject(`${path}/items/6/status`);
+    const res = yield instance.inject(`${path}/surveys/${surveyID}/items/6/status`);
 
     t.equal(res.statusCode, 200);
     t.equal(res.result.show, true);
@@ -130,7 +131,7 @@ test('test item events', t => {
     function makeEvent(event, data, cookie) {
       const request = {
         method: 'POST',
-        url: `${path}/items/100/events`,
+        url: `${path}/surveys/${surveyID}/items/100/events`,
         payload: {
           event,
         },
@@ -148,12 +149,15 @@ test('test item events', t => {
     }
 
     function makeGet() {
-      return instance.inject(`${path}/items/100?key=test`);
+      return instance.inject(`${path}/surveys/${surveyID}/items/100?key=test`);
     }
 
     let res = yield makeEvent(EVENTS.IMPRESSION);
     const cookie = res.headers['set-cookie'][0];
     t.equal(res.statusCode, 200);
+
+    res = yield makeEvent(EVENTS.IMPRESSION, null, cookie);
+    t.equal(res.statusCode, 400, 'second impression should fail');
 
     res = yield makeGet();
     t.equal(res.result.events.length, 1, 'check for right count');
