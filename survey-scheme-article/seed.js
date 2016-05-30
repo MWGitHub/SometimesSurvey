@@ -10,8 +10,9 @@ function generateText(paragraphs, lines) {
   for (let i = 0; i < paragraphs; ++i) {
     let line = '';
     for (let j = 0; j < lines; ++j) {
-      line += _.capitalize(faker.hacker.phrase());
+      line += `${_.capitalize(faker.hacker.phrase())} `;
     }
+    line = _.trim(line);
     text.push(line);
   }
   return text;
