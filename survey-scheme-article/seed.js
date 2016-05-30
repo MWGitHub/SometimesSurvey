@@ -70,7 +70,7 @@ module.exports = {
       readsPerHour: 5000,
     },
     full: {
-      title: 'Sample size is good enough',
+      title: 'Too much',
       image: faker.image.image(),
       text: generateText(PARAGRAPHS, LINES),
       date: moment().subtract(5, 'days').toDate(),
