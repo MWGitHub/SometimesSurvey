@@ -10,11 +10,13 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   devtool: 'source-map',
-  entry: ['./example/main'],
+  entry: ['./index'],
   output: {
-    filename: 'bundle.js',
-    path: path.join(__dirname, 'example'),
-    publicPath: '/example/',
+    filename: 'index.js',
+    path: path.join(__dirname, 'dist'),
+    publicPath: '/dist/',
+    library: 'survey-component',
+    libraryTarget: 'commonjs2',
   },
   module: {
     loaders: [

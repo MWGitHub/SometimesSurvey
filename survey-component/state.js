@@ -1,4 +1,4 @@
-import debounce from './debounce';
+import debounce from 'light-debounce';
 
 export default function state(component, initialState, action) {
   const states = {};

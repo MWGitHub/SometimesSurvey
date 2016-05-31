@@ -1,11 +1,11 @@
 /** @jsx element */
 /* eslint-disable */
-require('./example.css');
+require('../main.css');
 
 import faker from 'faker';
 import { element, createApp } from 'deku';
 import _ from 'lodash';
-import debounce from '../debounce';
+import debounce from 'light-debounce';
 
 import Survey from '../index';
 
