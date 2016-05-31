@@ -66,7 +66,9 @@ function dummyCheckItem() {
 }
 
 const Root = {
+
   render({ dispatch }) {
+    const likeButton = <div class="fb-like" data-href="https://code-splat.com" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>;
     return (
       <div>
         <div class="main">
@@ -85,9 +87,12 @@ const Root = {
           show={store.show}
           valid={store.valid}
           liked={false}
+          likeButton={likeButton}
           question={store.question}
+          onLike={() => {}}
           onRate={() => {}}
           onClose={() => { store.show = false; dispatch() }}
+          FB={window.FB}
         />
       </div>
     );

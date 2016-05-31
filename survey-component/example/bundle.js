@@ -151,6 +151,7 @@
 	  render: function render(_ref3) {
 	    var dispatch = _ref3.dispatch;
 	
+	    var likeButton = (0, _deku.element)('div', { 'class': 'fb-like', 'data-href': 'https://code-splat.com', 'data-layout': 'button', 'data-action': 'like', 'data-show-faces': 'false', 'data-share': 'false' });
 	    return (0, _deku.element)(
 	      'div',
 	      null,
@@ -186,11 +187,14 @@
 	        show: store.show,
 	        valid: store.valid,
 	        liked: false,
+	        likeButton: likeButton,
 	        question: store.question,
+	        onLike: function onLike() {},
 	        onRate: function onRate() {},
 	        onClose: function onClose() {
 	          store.show = false;dispatch();
-	        }
+	        },
+	        FB: window.FB
 	      })
 	    );
 	  }
@@ -88374,7 +88378,8 @@
 	    isAnimating: true,
 	    container: null,
 	    showLike: false,
-	    isClosing: false
+	    isClosing: false,
+	    likeHandler: null
 	  };
 	}
 	
@@ -88441,7 +88446,27 @@
 	  setState({ isClosing: true });
 	  window.setTimeout(function () {
 	    props.onClose && props.onClose();
+	    if (props.FB && state.handleLike) {
+	      props.FB.Event.unsubscribe('edge.create', state.handleLike);
+	    }
 	  }, closeTime);
+	}
+	
+	function handleLike(model) {
+	  var props = model.props;
+	  var state = model.state;
+	  var setState = model.setState;
+	
+	
+	  if (state.likeHandler) return function () {};
+	
+	  function like() {
+	    props.onLike && props.onLike();
+	    thanksClose(setState, state, props);
+	  }
+	
+	  setState({ likeHandler: like }, true);
+	  return like;
 	}
 	
 	function handleClose(_ref3) {
@@ -88459,7 +88484,10 @@
 	function handleClick(setState, state, props, score) {
 	  return function () {
 	    props.onRate && props.onRate(props.item, score);
-	    if (props.liked) return;
+	    if (props.liked) {
+	      thanksClose(setState, state, props);
+	      return;
+	    }
 	
 	    var threshold = props.threshold || 7;
 	    if (score >= threshold) {
@@ -88509,6 +88537,9 @@
 	  } else if (state.showLike) {
 	    viewClass += 'survey__view--hide';
 	    likeClass += 'survey__like--show';
+	    if (props.FB) {
+	      props.FB.Event.subscribe('edge.create', handleLike(model));
+	    }
 	  }
 	  return (0, _deku.element)(
 	    'div',
@@ -88559,7 +88590,7 @@
 	        (0, _deku.element)(
 	          'div',
 	          { 'class': 'survey-actions--left' },
-	          (0, _deku.element)('iframe', { src: 'https://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&width=50&layout=button&action=like&show_faces=false&share=false&height=65&appId=189535844765631', width: '50', height: '65', style: 'border:none;overflow:hidden', scrolling: 'no', frameborder: '0', allowTransparency: 'true' })
+	          props.likeButton
 	        ),
 	        (0, _deku.element)(
 	          'div',

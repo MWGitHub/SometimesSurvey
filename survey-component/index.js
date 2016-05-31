@@ -10,6 +10,7 @@ function initialState() {
     container: null,
     showLike: false,
     isClosing: false,
+    likeHandler: null,
   };
 }
 
@@ -68,7 +69,24 @@ function thanksClose(setState, state, props) {
   setState({ isClosing: true });
   window.setTimeout(() => {
     props.onClose && props.onClose();
+    if (props.FB && state.handleLike) {
+      props.FB.Event.unsubscribe('edge.create', state.handleLike);
+    }
   }, closeTime);
+}
+
+function handleLike(model) {
+  const { props, state, setState } = model;
+
+  if (state.likeHandler) return () => {};
+
+  function like() {
+    props.onLike && props.onLike();
+    thanksClose(setState, state, props);
+  }
+
+  setState({ likeHandler: like }, true);
+  return like;
 }
 
 function handleClose({ setState, state, props }) {
@@ -82,7 +100,10 @@ function handleClose({ setState, state, props }) {
 function handleClick(setState, state, props, score) {
   return () => {
     props.onRate && props.onRate(props.item, score);
-    if (props.liked) return;
+    if (props.liked) {
+      thanksClose(setState, state, props);
+      return;
+    }
 
     const threshold = props.threshold || 7;
     if (score >= threshold) {
@@ -132,6 +153,9 @@ function createSurvey(model, isInteractive) {
   } else if (state.showLike) {
     viewClass += 'survey__view--hide';
     likeClass += 'survey__like--show';
+    if (props.FB) {
+      props.FB.Event.subscribe('edge.create', handleLike(model));
+    }
   }
   return (
     <div class="survey-wrapper">
@@ -153,7 +177,7 @@ function createSurvey(model, isInteractive) {
         <div class="survey-like__thanks">Thanks! Follow Mic on Facebook</div>
         <div class="survey-like__actions">
           <div class="survey-actions--left">
-            <iframe src="https://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&width=50&layout=button&action=like&show_faces=false&share=false&height=65&appId=189535844765631" width="50" height="65" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
+            {props.likeButton}
           </div>
           <div
             class="survey-actions--right"
