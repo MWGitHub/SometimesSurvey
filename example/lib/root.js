@@ -8,9 +8,12 @@ import Survey from 'survey-component';
 import Article from './article';
 import { createStore } from 'redux';
 import { ACTIONS, reducer } from './reducers';
+import co from 'co';
+import api from './api';
+import util from './util';
+import seeds from './seeds';
 
 const initialState = {
-  container: null,
   show: false,
   valid: false,
   question: 'Was this article worth your time?',
@@ -18,29 +21,7 @@ const initialState = {
 
 const store = createStore(reducer, initialState);
 
-const articles = [];
-
-function createArticle() {
-  const paragraphs = [];
-  for (let i = 0; i < 10; ++i) {
-    let paragraph = '';
-    for (let line = 0; line < 5; ++line) {
-      paragraph += `${_.capitalize(faker.hacker.phrase())} `;
-    }
-    paragraph = _.trim(paragraph);
-    paragraphs.push(paragraph);
-  }
-
-  return {
-    title: faker.company.catchPhrase(),
-    paragraphs,
-    image: faker.image.image(),
-  };
-}
-
-function dummyCheckItem() {
-  return Promise.resolve(true);
-}
+const articles = seeds.articles;
 
 function handleReset(dispatch) {
   return () => {
@@ -48,8 +29,14 @@ function handleReset(dispatch) {
   };
 }
 
+function handleCheckItem(survey, item) {
+  if (!survey) return Promise.resolve(false);
+
+  return api.fetchStatus(survey, item);
+}
+
 function handleFetchItemStatus(dispatch) {
-  return (result) => {
+  return (survey, item, result) => {
     if (result) {
       dispatch({ type: ACTIONS.SET_VALID });
     } else {
@@ -59,56 +46,97 @@ function handleFetchItemStatus(dispatch) {
 }
 
 function handleSurveyShown(dispatch) {
-  return (result) => {
+  return () => {
     dispatch({ type: ACTIONS.SHOW });
   };
 }
 
-function handleImpression(item) {
+function handleImpression(survey, item) {
   console.log('track impression');
+  api.postEvent(survey, item, {
+    event: 'reader-survey-impression',
+  });
+  window.ga('send', 'event', 'survey', 'reader-survey-impression');
 }
 
-function handleLike(item) {
-  console.log('track like');
-}
-
-function handleRate(item, value) {
+function handleRate(survey, item, value) {
   console.log('track rate', value);
+  api.postEvent(survey, item, {
+    event: 'reader-survey-conversion',
+    data: {
+      box: value,
+    },
+  });
+  window.ga('send', 'event', 'survey', 'reader-survey-conversion',
+    'box', value);
+  localStorage.setItem('surveys', JSON.stringify([{
+    href: window.location.href,
+    article_id: item,
+    response: value,
+    referrer: document.referrer,
+    timestamp: Math.floor(Date.now() / 1000),
+  }]));
+}
+
+function handleLike(survey, item) {
+  console.log('track like');
+  const event = {
+    event: 'social-capture',
+    data: {
+      name: 'readerSurvey',
+    },
+  };
+  window.ga('send', 'event', 'social-capture', 'name', 'readerSurvey');
+  if (util.isMobile()) {
+    console.log('mobile');
+    window.ga('send', 'event', 'social-capture', 'after.survey', 'true');
+    event.data['after.survey'] = true;
+  }
+  api.postEvent(survey, item, event);
+  localStorage.setItem('subscribed', true);
 }
 
 function handleClose(dispatch) {
-  return (item) => {
-    console.log('track close');
+  return () => {
     dispatch({ type: ACTIONS.HIDE });
-  }
+  };
+}
+
+function handleLikeClose(survey, item) {
+  console.log('track like close');
+  api.postEvent(survey, item, {
+    event: 'reader-survey-close',
+  });
+  window.ga('send', 'event', 'survey', 'reader-survey-close');
 }
 
 const Root = {
   render({ context, dispatch }) {
-    console.log(context);
-    const likeButton = <div class="fb-like" data-href="https://code-splat.com" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>;
+    const liked = !!localStorage.getItem('subscribed');
     return (
       <div>
         <div class="main">
           <button onClick={handleReset(dispatch)}>Reset</button>
           <h1>Survey Component Example</h1>
-          <Article id="article-1" article={articles[0]} initial={true} />
-          <Article id="article-2" article={articles[1]} />
-          <Article id="article-3" article={articles[2]} />
+          <Article id="article-1" article={articles.always} initial={true} />
+          <Article id="article-2" article={articles.publishedBefore} />
+          <Article id="article-3" article={articles.old} />
         </div>
         <Survey
           container={context.container}
-          item={0}
-          onCheckItem={dummyCheckItem}
+          survey={context.survey}
+          item={context.item}
+          onCheckItem={handleCheckItem}
           onItemStatus={handleFetchItemStatus(dispatch)}
           onSurveyShown={handleSurveyShown(dispatch)}
           onImpression={handleImpression}
+          onLikeClose={handleLikeClose}
           onLike={handleLike}
           onRate={handleRate}
           show={context.show}
           valid={context.valid}
-          liked={false}
-          likeButton={likeButton}
+          liked={liked}
+          likeButton={util.likeButton}
           question={context.question}
           onClose={handleClose(dispatch)}
           stateAction={{ type: ACTIONS.UPDATE_UI }}
@@ -126,10 +154,13 @@ function start() {
     update();
   });
 
-  for (let i = 0; i < 3; ++i) {
-    const article = createArticle();
-    articles.push(article);
-  }
+  co(function* fetchSurvey() {
+    const survey = yield api.fetchSurvey('article');
+
+    store.dispatch({ type: ACTIONS.SET_SURVEY, survey: survey.id });
+    store.dispatch({ type: ACTIONS.SET_QUESTION, question: survey.question });
+    store.dispatch({ type: ACTIONS.SET_ITEM, item: 'always' });
+  }).then();
 
   render(<Root />);
 }

@@ -5,7 +5,7 @@ import { ACTIONS } from './reducers';
 const Article = {
   render({ props }) {
     const article = props.article;
-    const paragraphs = article.paragraphs.map(v => <p>{v}</p>);
+    const paragraphs = article.text.map(v => <p>{v}</p>);
 
     return (
       <div id={props.id}>
@@ -16,10 +16,10 @@ const Article = {
     );
   },
 
-  onCreate({ props: { initial }, dispatch }) {
+  onCreate({ props: { initial, id }, dispatch }) {
     if (initial) {
       setTimeout(() => {
-        const container = document.getElementById('article-1');
+        const container = document.getElementById(id);
         dispatch({ type: ACTIONS.SET_CONTAINER, container });
       }, 0);
     }

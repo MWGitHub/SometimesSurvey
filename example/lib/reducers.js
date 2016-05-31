@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
 
 const ACTIONS = {
+  SET_SURVEY: 'SET_SURVEY',
+  SET_ITEM: 'SET_ITEM',
   SET_CONTAINER: 'SET_CONTAINER',
   SET_VALID: 'SET_VALID',
   SET_INVALID: 'SET_INVALID',
@@ -14,6 +16,24 @@ function update(state = {}, action) {
   switch (action.type) {
     case 'UPDATE_UI':
       return state;
+    default:
+      return state;
+  }
+}
+
+function survey(state = null, action) {
+  switch (action.type) {
+    case 'SET_SURVEY':
+      return action.survey;
+    default:
+      return state;
+  }
+}
+
+function item(state = null, action) {
+  switch (action.type) {
+    case 'SET_ITEM':
+      return action.item;
     default:
       return state;
   }
@@ -63,6 +83,8 @@ module.exports = {
   ACTIONS,
   reducer: combineReducers({
     update,
+    survey,
+    item,
     container,
     show,
     valid,

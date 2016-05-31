@@ -7,7 +7,7 @@
 #####Overview
 General architecture will be a survey service that can handle multiple types of survey conditions for more than just articles if needed. The way to handle a type would be to provide schemes to the survey server which would handle validity and criteria checks. Schemes are chosen based on the survey property.
 
-Other services such as analytics that rely on the data can listen to events and replicate the data. This allows a more specific database to be used for different situations.
+Tracking is done by passing in callbacks to the survey component. This way the user can decide which tracker to use. Additionally, events are sent to the survey server when a database is connected to it. This allows for more flexibility in querying the data collected. The default site currently uses database storing and Google Analytics.
 
 #####Technology
 

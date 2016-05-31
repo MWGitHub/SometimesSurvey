@@ -15,6 +15,12 @@ const server = new Server({
   schemes: {
     article: articleScheme,
   },
+}, {
+  routes: {
+    cors: {
+      credentials: true,
+    },
+  },
 });
 
 co(function* start() {
