@@ -88418,7 +88418,7 @@
 	
 	  if (!props.onCheckItem) return;
 	
-	  props.onCheckItem(props.item).then(function (result) {
+	  props.onCheckItem(props.survey, props.item).then(function (result) {
 	    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
 	  });
 	}
@@ -88475,7 +88475,7 @@
 	  return like;
 	}
 	
-	function handleClose(_ref3) {
+	function handleLikeClose(_ref3) {
 	  var setState = _ref3.setState;
 	  var state = _ref3.state;
 	  var props = _ref3.props;
@@ -88483,6 +88483,8 @@
 	  if (state.isClosing) return function () {};
 	
 	  return function () {
+	    props.onLikeClose && props.onLikeClose(props.survey, props.item);
+	
 	    thanksClose(setState, state, props);
 	  };
 	}
@@ -88544,6 +88546,7 @@
 	    viewClass += 'survey__view--hide';
 	    likeClass += 'survey__like--show';
 	    if (props.FB) {
+	      props.FB.XFBML.parse();
 	      props.FB.Event.subscribe('edge.create', handleLike(model));
 	    }
 	  }
@@ -88602,7 +88605,7 @@
 	          'div',
 	          {
 	            'class': 'survey-actions--right',
-	            onClick: interact(handleClose(model))
+	            onClick: interact(handleLikeClose(model))
 	          },
 	          'No, I\'m good'
 	        )

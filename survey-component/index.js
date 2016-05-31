@@ -156,6 +156,7 @@ function createSurvey(model, isInteractive) {
     viewClass += 'survey__view--hide';
     likeClass += 'survey__like--show';
     if (props.FB) {
+      props.FB.XFBML.parse();
       props.FB.Event.subscribe('edge.create', handleLike(model));
     }
   }
