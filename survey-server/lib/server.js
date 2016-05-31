@@ -7,7 +7,7 @@ const database = require('./database');
 const api = require('./api');
 
 class Server {
-  constructor(inputOptions) {
+  constructor(inputOptions, connectionOptions) {
     const options = Object.assign({
       port: 8080,
       key: 'change this key!',
@@ -16,10 +16,13 @@ class Server {
       schemes: null,
       password: 'change this key to something 32 characters or longer!',
     }, inputOptions);
+    const connection = Object.assign({
+      port: options.port,
+    }, connectionOptions);
 
     this._config = options;
     this._server = new Hapi.Server();
-    this._server.connection({ port: this._config.port });
+    this._server.connection(connection);
 
     this._scheme = null;
   }
