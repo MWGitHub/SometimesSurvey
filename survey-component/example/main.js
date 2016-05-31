@@ -82,10 +82,11 @@ const Root = {
         </div>
         <Survey
           container={store.container}
+          survey={0}
           item={0}
           onCheckItem={dummyCheckItem}
-          onItemStatus={(result) => { store.valid = result; dispatch(); }}
-          onSurveyShown={(item) => { store.show = true; dispatch(); }}
+          onItemStatus={() => { store.valid = true; dispatch(); }}
+          onSurveyShown={() => { store.show = true; dispatch(); }}
           show={store.show}
           valid={store.valid}
           liked={false}
@@ -95,6 +96,7 @@ const Root = {
           onRate={() => {}}
           onClose={() => { store.show = false; dispatch() }}
           FB={window.FB}
+          stateAction={() => { dispatch() }}
         />
       </div>
     );

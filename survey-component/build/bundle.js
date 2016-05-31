@@ -178,12 +178,13 @@
 	      ),
 	      (0, _deku.element)(_index2.default, {
 	        container: store.container,
+	        survey: 0,
 	        item: 0,
 	        onCheckItem: dummyCheckItem,
-	        onItemStatus: function onItemStatus(result) {
-	          store.valid = result;dispatch();
+	        onItemStatus: function onItemStatus() {
+	          store.valid = true;dispatch();
 	        },
-	        onSurveyShown: function onSurveyShown(item) {
+	        onSurveyShown: function onSurveyShown() {
 	          store.show = true;dispatch();
 	        },
 	        show: store.show,
@@ -196,7 +197,10 @@
 	        onClose: function onClose() {
 	          store.show = false;dispatch();
 	        },
-	        FB: window.FB
+	        FB: window.FB,
+	        stateAction: function stateAction() {
+	          dispatch();
+	        }
 	      })
 	    );
 	  }
@@ -88399,8 +88403,8 @@
 	  var space = itemBottom - middle;
 	
 	  if (space < 0 || space / container.offsetHeight <= 1 - percent) {
-	    props.onSurveyShown && props.onSurveyShown(props.item);
-	    props.onImpression && props.onImpression(props.item);
+	    props.onSurveyShown && props.onSurveyShown(props.survey, props.item);
+	    props.onImpression && props.onImpression(props.survey, props.item);
 	  }
 	}
 	
@@ -88408,14 +88412,14 @@
 	  var props = _ref2.props;
 	
 	  if (props.item === undefined || props.item === null) {
-	    props.onItemStatus && props.onItemStatus(false);
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
 	    return;
 	  }
 	
 	  if (!props.onCheckItem) return;
 	
 	  props.onCheckItem(props.item).then(function (result) {
-	    props.onItemStatus && props.onItemStatus(result);
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
 	  });
 	}
 	
@@ -88447,7 +88451,7 @@
 	  var closeTime = props.closeTime || 1000;
 	  setState({ isClosing: true }, false, props.stateAction);
 	  window.setTimeout(function () {
-	    props.onClose && props.onClose();
+	    props.onClose && props.onClose(props.survey, props.item);
 	    if (props.FB && state.handleLike) {
 	      props.FB.Event.unsubscribe('edge.create', state.handleLike);
 	    }
@@ -88463,7 +88467,7 @@
 	  if (state.likeHandler) return function () {};
 	
 	  function like() {
-	    props.onLike && props.onLike();
+	    props.onLike && props.onLike(props.survey, props.item);
 	    thanksClose(setState, state, props);
 	  }
 	
@@ -88485,7 +88489,7 @@
 	
 	function handleClick(setState, state, props, score) {
 	  return function () {
-	    props.onRate && props.onRate(props.item, score);
+	    props.onRate && props.onRate(props.survey, props.item, score);
 	    if (props.liked) {
 	      thanksClose(setState, state, props);
 	      return;
@@ -88644,8 +88648,16 @@
 	  );
 	}
 	
+	function isReady(_ref4) {
+	  var props = _ref4.props;
+	
+	  return props.survey !== undefined && props.survey !== null && props.container && props.item !== undefined && props.item !== null;
+	}
+	
 	function onCreate(model) {
 	  var props = model.props;
+	  if (!isReady(model)) return;
+	
 	  model.setState({
 	    container: props.container
 	  }, true);
@@ -88656,19 +88668,18 @@
 	
 	function onUpdate(model) {
 	  var props = model.props;
-	  model.setState({
-	    container: props.container
-	  }, true);
-	  if (model.state.container !== model.props.container) {
+	  if (!isReady(model)) return;
+	
+	  if (model.state.container !== props.container) {
 	    checkItem(model);
-	    model.setState({ container: model.props.container }, true);
+	    model.setState({ container: props.container }, true);
 	  }
 	
 	  toggleScrollChecks(model);
 	}
 	
-	function onRemove(_ref4) {
-	  var setState = _ref4.setState;
+	function onRemove(_ref5) {
+	  var setState = _ref5.setState;
 	
 	  setState({ isAnimating: false }, true);
 	}

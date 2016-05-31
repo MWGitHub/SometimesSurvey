@@ -25,21 +25,21 @@ function checkScroll({ props, state }) {
   const space = itemBottom - middle;
 
   if (space < 0 || space / container.offsetHeight <= 1 - percent) {
-    props.onSurveyShown && props.onSurveyShown(props.item);
-    props.onImpression && props.onImpression(props.item);
+    props.onSurveyShown && props.onSurveyShown(props.survey, props.item);
+    props.onImpression && props.onImpression(props.survey, props.item);
   }
 }
 
 function checkItem({ props }) {
   if (props.item === undefined || props.item === null) {
-    props.onItemStatus && props.onItemStatus(false);
+    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
     return;
   }
 
   if (!props.onCheckItem) return;
 
   props.onCheckItem(props.item).then(result => {
-    props.onItemStatus && props.onItemStatus(result);
+    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
   });
 }
 
@@ -68,7 +68,7 @@ function thanksClose(setState, state, props) {
   const closeTime = props.closeTime || 1000;
   setState({ isClosing: true }, false, props.stateAction);
   window.setTimeout(() => {
-    props.onClose && props.onClose();
+    props.onClose && props.onClose(props.survey, props.item);
     if (props.FB && state.handleLike) {
       props.FB.Event.unsubscribe('edge.create', state.handleLike);
     }
@@ -81,7 +81,7 @@ function handleLike(model) {
   if (state.likeHandler) return () => {};
 
   function like() {
-    props.onLike && props.onLike(props.item);
+    props.onLike && props.onLike(props.survey, props.item);
     thanksClose(setState, state, props);
   }
 
@@ -99,7 +99,7 @@ function handleClose({ setState, state, props }) {
 
 function handleClick(setState, state, props, score) {
   return () => {
-    props.onRate && props.onRate(props.item, score);
+    props.onRate && props.onRate(props.survey, props.item, score);
     if (props.liked) {
       thanksClose(setState, state, props);
       return;
@@ -218,8 +218,15 @@ function render(model) {
   );
 }
 
+function isReady({ props }) {
+  return props.survey !== undefined && props.survey !== null &&
+    props.container && props.item !== undefined && props.item !== null;
+}
+
 function onCreate(model) {
   const props = model.props;
+  if (!isReady(model)) return;
+
   model.setState({
     container: props.container,
   }, true);
@@ -230,12 +237,11 @@ function onCreate(model) {
 
 function onUpdate(model) {
   const props = model.props;
-  model.setState({
-    container: props.container,
-  }, true);
-  if (model.state.container !== model.props.container) {
+  if (!isReady(model)) return;
+
+  if (model.state.container !== props.container) {
     checkItem(model);
-    model.setState({ container: model.props.container }, true);
+    model.setState({ container: props.container }, true);
   }
 
   toggleScrollChecks(model);
