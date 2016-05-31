@@ -40,21 +40,24 @@ Server.prototype.initialize = function initialize() {
   }
 
   const server = this._server;
-  const plugins = [
-    {
+  let plugins = [];
+  if (process.env.NODE_ENV === 'development') {
+    plugins.push({
       register: good,
       options: {
         reporters: {
           console: [{
             module: 'good-squeeze',
             name: 'Squeeze',
-            args: [{ log: '*', response: '*' }],
+            args: [{ error: '*', log: '*', response: '*' }],
           }, {
             module: 'good-console',
           }, 'stdout'],
         },
       },
-    },
+    });
+  }
+  plugins = plugins.concat([
     {
       register: api,
       options: {
@@ -73,7 +76,7 @@ Server.prototype.initialize = function initialize() {
         schemes: this._config.schemes,
       },
     },
-  ];
+  ]);
 
   return server.register(plugins).then(() => {
     server.auth.strategy('key', 'key');
