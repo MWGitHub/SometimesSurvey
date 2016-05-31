@@ -7,6 +7,7 @@ var postcssFor = require('postcss-for');
 var math = require('postcss-math');
 var cssVars = require('postcss-simple-vars');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   devtool: 'source-map',
@@ -18,6 +19,7 @@ module.exports = {
     library: 'survey-component',
     libraryTarget: 'commonjs2',
   },
+  externals: [nodeExternals()],
   module: {
     loaders: [
       { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/ },
