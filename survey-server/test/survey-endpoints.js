@@ -85,10 +85,10 @@ test('test single survey retrieval', t => {
   co(function* initialize() {
     const instance = yield server.initialize();
 
-    let res = yield instance.inject(`${path}/surveys/1?key=test`);
+    let res = yield instance.inject(`${path}/surveys/1`);
     t.equal(res.result.scheme, 'simple', 'check for right survey');
 
-    res = yield instance.inject(`${path}/surveys/simple?key=test`);
+    res = yield instance.inject(`${path}/surveys/simple`);
     t.equal(res.result.scheme, 'simple', 'check for right survey');
 
     yield server.stop();
@@ -107,7 +107,7 @@ test('test single survey deployment', t => {
     const instance = yield server.initialize();
     const date = moment().subtract(3, 'days');
 
-    let res = yield instance.inject(`${path}/surveys/2?key=test`);
+    let res = yield instance.inject(`${path}/surveys/2`);
     t.equal(res.result.deployed, false, 'check for survey status');
 
     res = yield instance.inject({
@@ -118,7 +118,7 @@ test('test single survey deployment', t => {
       },
     });
 
-    res = yield instance.inject(`${path}/surveys/2?key=test`);
+    res = yield instance.inject(`${path}/surveys/2`);
     t.equal(res.result.deployed, true, 'check for survey status');
     t.equal(res.result.deploy_time.toString(),
       date.toDate().toString(), 'check for correct deploy time');
@@ -138,7 +138,7 @@ test('test single survey disabling', t => {
   co(function* initialize() {
     const instance = yield server.initialize();
 
-    let res = yield instance.inject(`${path}/surveys/simple?key=test`);
+    let res = yield instance.inject(`${path}/surveys/simple`);
     t.equal(res.result.deployed, true, 'check for survey status');
 
     res = yield instance.inject({
@@ -146,7 +146,7 @@ test('test single survey disabling', t => {
       url: `${path}/surveys/1/disable?key=test`,
     });
 
-    res = yield instance.inject(`${path}/surveys/1?key=test`);
+    res = yield instance.inject(`${path}/surveys/1`);
     t.equal(res.result.deployed, false, 'check for survey status');
 
     yield server.stop();

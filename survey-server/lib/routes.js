@@ -74,8 +74,19 @@ module.exports = [
       },
     },
   },
-  surveyRoute(`${api.path}/surveys/{survey_id}`, 'GET',
-    surveyHandlers.getSurvey),
+  {
+    method: 'GET',
+    path: `${api.path}/surveys/{survey_id}`,
+    config: {
+      handler: surveyHandlers.getSurvey,
+      pre: [databaseCheck],
+      validate: {
+        params: {
+          survey_id: surveyIdValidation,
+        },
+      },
+    },
+  },
   surveyRoute(`${api.path}/surveys/{survey_id}/deploy`, 'POST',
     surveyHandlers.deploySurvey, {
       deploy_time: Joi.date(),
