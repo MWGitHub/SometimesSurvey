@@ -9,6 +9,7 @@ function initialState() {
     isAnimating: true,
     container: null,
     showLike: false,
+    isClosing: false,
   };
 }
 
@@ -60,10 +61,27 @@ function toggleScrollChecks(model) {
   });
 }
 
-function handleClick(setState, props, score) {
+function thanksClose(setState, state, props) {
+  if (state.isClosing) return;
+
+  const closeTime = props.closeTime || 1000;
+  setState({ isClosing: true });
+  window.setTimeout(() => {
+    props.onClose && props.onClose();
+  }, closeTime);
+}
+
+function handleClose({ setState, state, props }) {
+  if (state.isClosing) return () => {};
+
+  return () => {
+    thanksClose(setState, state, props);
+  };
+}
+
+function handleClick(setState, state, props, score) {
   return () => {
     props.onRate && props.onRate(props.item, score);
-    console.log(score);
     if (props.liked) return;
 
     const threshold = props.threshold || 7;
@@ -71,11 +89,14 @@ function handleClick(setState, props, score) {
       setState({
         showLike: true,
       });
+    } else {
+      thanksClose(setState, state, props);
     }
   };
 }
 
-function createSurvey(setState, state, props, isInteractive) {
+function createSurvey(model, isInteractive) {
+  const { setState, state, props } = model;
   function interact(fn) {
     if (isInteractive) return fn;
 
@@ -95,7 +116,7 @@ function createSurvey(setState, state, props, isInteractive) {
       <div
         key={v}
         class={cls}
-        onClick={interact(handleClick(setState, props, v))}
+        onClick={interact(handleClick(setState, state, props, v))}
       >
       </div>
     );
@@ -103,7 +124,12 @@ function createSurvey(setState, state, props, isInteractive) {
 
   let viewClass = 'survey__view ';
   let likeClass = 'survey__like ';
-  if (state.showLike) {
+  let thanksClass = 'survey__thanks ';
+  if (state.isClosing) {
+    viewClass += 'survey__view--hide';
+    likeClass += 'survey__like--hide';
+    thanksClass += 'survey__thanks--show';
+  } else if (state.showLike) {
     viewClass += 'survey__view--hide';
     likeClass += 'survey__like--show';
   }
@@ -122,33 +148,40 @@ function createSurvey(setState, state, props, isInteractive) {
             <div class="survey-rating__descriptions--right">Absolutely</div>
           </div>
         </div>
-        <div class="survey__close" onClick={interact(props.onClose)}>
-          x
-        </div>
       </div>
       <div class={likeClass}>
         <div class="survey-like__thanks">Thanks! Follow Mic on Facebook</div>
         <div class="survey-like__actions">
           <div class="survey-actions--left">
-            Like
+            <iframe src="https://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&width=50&layout=button&action=like&show_faces=false&share=false&height=65&appId=189535844765631" width="50" height="65" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true"></iframe>
           </div>
-          <div class="survey-actions--right">
+          <div
+            class="survey-actions--right"
+            onClick={interact(handleClose(model))}
+          >
             No, I'm good
           </div>
         </div>
+      </div>
+      <div class={thanksClass}>
+        <div class="survey-thanks__main">Thanks!</div>
+      </div>
+      <div class="survey__close" onClick={interact(props.onClose)}>
+        x
       </div>
     </div>
   );
 }
 
-function render({ state, setState, props }) {
+function render(model) {
+  const { props, state } = model;
   let view = null;
 
   if (state.hasAnimated) {
     if (props.show) {
-      view = createSurvey(setState, state, props, true);
+      view = createSurvey(model, true);
     } else {
-      view = createSurvey(setState, state, props, false);
+      view = createSurvey(model, false);
     }
   }
 

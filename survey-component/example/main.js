@@ -86,6 +86,7 @@ const Root = {
           valid={store.valid}
           liked={false}
           question={store.question}
+          onRate={() => {}}
           onClose={() => { store.show = false; dispatch() }}
         />
       </div>

@@ -143,6 +143,7 @@ img {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   transition: all 0.5s;
 }
 
@@ -151,14 +152,52 @@ img {
 }
 
 .survey-like__thanks {
+  margin-bottom: 10px;
+}
+
+.survey-like__actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .survey-actions--left {
-  float: left;
+  margin-right: 10px;
+  height: 20px;
 }
 
 .survey-actions--right {
-  float: right;
+  cursor: pointer;
+  height: 20px;
+  font-size: 0.7rem;
+  line-height: 1.8;
+  color: #aaa;
+}
+
+.survey-actions--right:hover {
+  color: rgb(105, 199, 214);
+}
+
+/** Thanks Screen **/
+
+.survey__thanks {
+  position: absolute;
+  bottom: -200px;
+  left: 0;
+  right: 0;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+}
+
+.survey__thanks--show {
+  bottom: 0;
+}
+
+.survey--hidden .survey__thanks--show {
+  bottom: -200px;
 }
 
 /** Survey Close **/

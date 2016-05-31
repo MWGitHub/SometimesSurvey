@@ -187,6 +187,7 @@
 	        valid: store.valid,
 	        liked: false,
 	        question: store.question,
+	        onRate: function onRate() {},
 	        onClose: function onClose() {
 	          store.show = false;dispatch();
 	        }
@@ -88372,7 +88373,8 @@
 	    hasAnimated: false,
 	    isAnimating: true,
 	    container: null,
-	    showLike: false
+	    showLike: false,
+	    isClosing: false
 	  };
 	}
 	
@@ -88432,10 +88434,31 @@
 	  });
 	}
 	
-	function handleClick(setState, props, score) {
+	function thanksClose(setState, state, props) {
+	  if (state.isClosing) return;
+	
+	  var closeTime = props.closeTime || 1000;
+	  setState({ isClosing: true });
+	  window.setTimeout(function () {
+	    props.onClose && props.onClose();
+	  }, closeTime);
+	}
+	
+	function handleClose(_ref3) {
+	  var setState = _ref3.setState;
+	  var state = _ref3.state;
+	  var props = _ref3.props;
+	
+	  if (state.isClosing) return function () {};
+	
+	  return function () {
+	    thanksClose(setState, state, props);
+	  };
+	}
+	
+	function handleClick(setState, state, props, score) {
 	  return function () {
 	    props.onRate && props.onRate(props.item, score);
-	    console.log(score);
 	    if (props.liked) return;
 	
 	    var threshold = props.threshold || 7;
@@ -88443,11 +88466,17 @@
 	      setState({
 	        showLike: true
 	      });
+	    } else {
+	      thanksClose(setState, state, props);
 	    }
 	  };
 	}
 	
-	function createSurvey(setState, state, props, isInteractive) {
+	function createSurvey(model, isInteractive) {
+	  var setState = model.setState;
+	  var state = model.state;
+	  var props = model.props;
+	
 	  function interact(fn) {
 	    if (isInteractive) return fn;
 	
@@ -88466,13 +88495,18 @@
 	    return (0, _deku.element)('div', {
 	      key: v,
 	      'class': cls,
-	      onClick: interact(handleClick(setState, props, v))
+	      onClick: interact(handleClick(setState, state, props, v))
 	    });
 	  });
 	
 	  var viewClass = 'survey__view ';
 	  var likeClass = 'survey__like ';
-	  if (state.showLike) {
+	  var thanksClass = 'survey__thanks ';
+	  if (state.isClosing) {
+	    viewClass += 'survey__view--hide';
+	    likeClass += 'survey__like--hide';
+	    thanksClass += 'survey__thanks--show';
+	  } else if (state.showLike) {
 	    viewClass += 'survey__view--hide';
 	    likeClass += 'survey__like--show';
 	  }
@@ -88509,11 +88543,6 @@
 	            'Absolutely'
 	          )
 	        )
-	      ),
-	      (0, _deku.element)(
-	        'div',
-	        { 'class': 'survey__close', onClick: interact(props.onClose) },
-	        'x'
 	      )
 	    ),
 	    (0, _deku.element)(
@@ -88530,30 +88559,46 @@
 	        (0, _deku.element)(
 	          'div',
 	          { 'class': 'survey-actions--left' },
-	          'Like'
+	          (0, _deku.element)('iframe', { src: 'https://www.facebook.com/plugins/like.php?href=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&width=50&layout=button&action=like&show_faces=false&share=false&height=65&appId=189535844765631', width: '50', height: '65', style: 'border:none;overflow:hidden', scrolling: 'no', frameborder: '0', allowTransparency: 'true' })
 	        ),
 	        (0, _deku.element)(
 	          'div',
-	          { 'class': 'survey-actions--right' },
+	          {
+	            'class': 'survey-actions--right',
+	            onClick: interact(handleClose(model))
+	          },
 	          'No, I\'m good'
 	        )
 	      )
+	    ),
+	    (0, _deku.element)(
+	      'div',
+	      { 'class': thanksClass },
+	      (0, _deku.element)(
+	        'div',
+	        { 'class': 'survey-thanks__main' },
+	        'Thanks!'
+	      )
+	    ),
+	    (0, _deku.element)(
+	      'div',
+	      { 'class': 'survey__close', onClick: interact(props.onClose) },
+	      'x'
 	    )
 	  );
 	}
 	
-	function render(_ref3) {
-	  var state = _ref3.state;
-	  var setState = _ref3.setState;
-	  var props = _ref3.props;
+	function render(model) {
+	  var props = model.props;
+	  var state = model.state;
 	
 	  var view = null;
 	
 	  if (state.hasAnimated) {
 	    if (props.show) {
-	      view = createSurvey(setState, state, props, true);
+	      view = createSurvey(model, true);
 	    } else {
-	      view = createSurvey(setState, state, props, false);
+	      view = createSurvey(model, false);
 	    }
 	  }
 	
@@ -88715,7 +88760,7 @@
 	
 	
 	// module
-	exports.push([module.id, "/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */\n\n/**\n * 1. Change the default font family in all browsers (opinionated).\n * 2. Prevent adjustments of font size after orientation changes in IE and iOS.\n */\n\nhtml {\n  font-family: sans-serif; /* 1 */\n  -ms-text-size-adjust: 100%; /* 2 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n}\n\n/**\n * Remove the margin in all browsers (opinionated).\n */\n\nbody {\n  margin: 0;\n}\n\n/* HTML5 display definitions\n   ========================================================================== */\n\n/**\n * Add the correct display in IE 9-.\n * 1. Add the correct display in Edge, IE, and Firefox.\n * 2. Add the correct display in IE.\n */\n\narticle, aside, details, figcaption, figure, footer, header, main, menu, nav, section, summary { /* 1 */\n  display: block;\n}\n\n/**\n * Add the correct display in IE 9-.\n */\n\naudio, canvas, progress, video {\n  display: inline-block;\n}\n\n/**\n * Add the correct display in iOS 4-7.\n */\n\naudio:not([controls]) {\n  display: none;\n  height: 0;\n}\n\n/**\n * Add the correct vertical alignment in Chrome, Firefox, and Opera.\n */\n\nprogress {\n  vertical-align: baseline;\n}\n\n/**\n * Add the correct display in IE 10-.\n * 1. Add the correct display in IE.\n */\n\ntemplate, [hidden] {\n  display: none;\n}\n\n/* Links\n   ========================================================================== */\n\n/**\n * 1. Remove the gray background on active links in IE 10.\n * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.\n */\n\na {\n  background-color: transparent; /* 1 */\n  -webkit-text-decoration-skip: objects; /* 2 */\n}\n\n/**\n * Remove the outline on focused links when they are also active or hovered\n * in all browsers (opinionated).\n */\n\na:active, a:hover {\n  outline-width: 0;\n}\n\n/* Text-level semantics\n   ========================================================================== */\n\n/**\n * 1. Remove the bottom border in Firefox 39-.\n * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.\n */\n\nabbr[title] {\n  border-bottom: none; /* 1 */\n  text-decoration: underline; /* 2 */\n  text-decoration: underline dotted; /* 2 */\n}\n\n/**\n * Prevent the duplicate application of `bolder` by the next rule in Safari 6.\n */\n\nb, strong {\n  font-weight: inherit;\n}\n\n/**\n * Add the correct font weight in Chrome, Edge, and Safari.\n */\n\nb, strong {\n  font-weight: bolder;\n}\n\n/**\n * Add the correct font style in Android 4.3-.\n */\n\ndfn {\n  font-style: italic;\n}\n\n/**\n * Correct the font size and margin on `h1` elements within `section` and\n * `article` contexts in Chrome, Firefox, and Safari.\n */\n\nh1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}\n\n/**\n * Add the correct background and color in IE 9-.\n */\n\nmark {\n  background-color: #ff0;\n  color: #000;\n}\n\n/**\n * Add the correct font size in all browsers.\n */\n\nsmall {\n  font-size: 80%;\n}\n\n/**\n * Prevent `sub` and `sup` elements from affecting the line height in\n * all browsers.\n */\n\nsub, sup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/* Embedded content\n   ========================================================================== */\n\n/**\n * Remove the border on images inside links in IE 10-.\n */\n\nimg {\n  border-style: none;\n}\n\n/**\n * Hide the overflow in IE.\n */\n\nsvg:not(:root) {\n  overflow: hidden;\n}\n\n/* Grouping content\n   ========================================================================== */\n\n/**\n * 1. Correct the inheritance and scaling of font size in all browsers.\n * 2. Correct the odd `em` font sizing in all browsers.\n */\n\ncode, kbd, pre, samp {\n  font-family: monospace, monospace; /* 1 */\n  font-size: 1em; /* 2 */\n}\n\n/**\n * Add the correct margin in IE 8.\n */\n\nfigure {\n  margin: 1em 40px;\n}\n\n/**\n * 1. Add the correct box sizing in Firefox.\n * 2. Show the overflow in Edge and IE.\n */\n\nhr {\n  box-sizing: content-box; /* 1 */\n  height: 0; /* 1 */\n  overflow: visible; /* 2 */\n}\n\n/* Forms\n   ========================================================================== */\n\n/**\n * 1. Change font properties to `inherit` in all browsers (opinionated).\n * 2. Remove the margin in Firefox and Safari.\n */\n\nbutton, input, select, textarea {\n  font: inherit; /* 1 */\n  margin: 0; /* 2 */\n}\n\n/**\n * Restore the font weight unset by the previous rule.\n */\n\noptgroup {\n  font-weight: bold;\n}\n\n/**\n * Show the overflow in IE.\n * 1. Show the overflow in Edge.\n */\n\nbutton, input { /* 1 */\n  overflow: visible;\n}\n\n/**\n * Remove the inheritance of text transform in Edge, Firefox, and IE.\n * 1. Remove the inheritance of text transform in Firefox.\n */\n\nbutton, select { /* 1 */\n  text-transform: none;\n}\n\n/**\n * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`\n *    controls in Android 4.\n * 2. Correct the inability to style clickable types in iOS and Safari.\n */\n\nbutton, html [type=\"button\"], [type=\"reset\"], [type=\"submit\"] {\n  -webkit-appearance: button; /* 2 */\n}\n\n/**\n * Remove the inner border and padding in Firefox.\n */\n\nbutton::-moz-focus-inner, [type=\"button\"]::-moz-focus-inner, [type=\"reset\"]::-moz-focus-inner, [type=\"submit\"]::-moz-focus-inner {\n  border-style: none;\n  padding: 0;\n}\n\n/**\n * Restore the focus styles unset by the previous rule.\n */\n\nbutton:-moz-focusring, [type=\"button\"]:-moz-focusring, [type=\"reset\"]:-moz-focusring, [type=\"submit\"]:-moz-focusring {\n  outline: 1px dotted ButtonText;\n}\n\n/**\n * Change the border, margin, and padding in all browsers (opinionated).\n */\n\nfieldset {\n  border: 1px solid #c0c0c0;\n  margin: 0 2px;\n  padding: 0.35em 0.625em 0.75em;\n}\n\n/**\n * 1. Correct the text wrapping in Edge and IE.\n * 2. Correct the color inheritance from `fieldset` elements in IE.\n * 3. Remove the padding so developers are not caught out when they zero out\n *    `fieldset` elements in all browsers.\n */\n\nlegend {\n  box-sizing: border-box; /* 1 */\n  color: inherit; /* 2 */\n  display: table; /* 1 */\n  max-width: 100%; /* 1 */\n  padding: 0; /* 3 */\n  white-space: normal; /* 1 */\n}\n\n/**\n * Remove the default vertical scrollbar in IE.\n */\n\ntextarea {\n  overflow: auto;\n}\n\n/**\n * 1. Add the correct box sizing in IE 10-.\n * 2. Remove the padding in IE 10-.\n */\n\n[type=\"checkbox\"], [type=\"radio\"] {\n  box-sizing: border-box; /* 1 */\n  padding: 0; /* 2 */\n}\n\n/**\n * Correct the cursor style of increment and decrement buttons in Chrome.\n */\n\n[type=\"number\"]::-webkit-inner-spin-button, [type=\"number\"]::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/**\n * 1. Correct the odd appearance in Chrome and Safari.\n * 2. Correct the outline style in Safari.\n */\n\n[type=\"search\"] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/**\n * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.\n */\n\n[type=\"search\"]::-webkit-search-cancel-button, [type=\"search\"]::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/**\n * Correct the text style of placeholders in Chrome, Edge, and Safari.\n */\n\n::-webkit-input-placeholder {\n  color: inherit;\n  opacity: 0.54;\n}\n\n/**\n * 1. Correct the inability to style clickable types in iOS and Safari.\n * 2. Change font properties to `inherit` in Safari.\n */\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\nimg {\n  width: 100%;\n  height: auto;\n}\n\n.main {\n  max-width: 600px;\n  margin: 0 auto;\n}\n\n.survey {\n  width: 100%;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  overflow: hidden;\n\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n\n  background-color: #FFF;\n  color: #555;\n  border-top: 3px #2abef7 solid;\n\n\n  -webkit-transition: all 0.5s;\n\n\n  transition: all 0.5s;\n}\n\n.survey--hidden {\n  bottom: -3px;\n  height: 0;\n}\n\n.survey--show {\n  bottom: 0;\n  height: 120px;\n}\n\n.survey__view {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 120px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n}\n\n.survey__question {\n  display: inline-block;\n  font-size: 1.4rem;\n  max-width: 40%;\n  margin-right: 3%;\n}\n\n.survey__rating {\n  display: inline-block;\n  width: 47%;\n  max-width: 400px;\n}\n\n.survey-rating__bars {\n  width: 100%;\n  height: 60px;\n}\n\n.survey-rating__descriptions {\n  width: 100%;\n  font-size: 0.7rem;\n  margin-top: 3px;\n  letter-spacing: 0.5px;\n}\n\n/** Survey Bars **/\n\n.survey-rating__bar {\n  display: inline-block;\n  background-color: #ccc;\n  width: 10%;\n  cursor: pointer;\n  -webkit-transition: background-color 0.5s;\n  transition: background-color 0.5s;\n}\n\n.survey-rating__bar--left:hover, .survey-rating__bar--left:hover ~ .survey-rating__bar--left {\n  background-color: rgb(255, 71, 71);\n}\n\n.survey-rating__bar--right:hover, .survey-rating__bar--right:hover ~ .survey-rating__bar--right {\n  background-color: rgb(71, 123, 255);\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(1) {\n  margin-top: 0px;\n  height: 60px;\n  opacity: 1;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(2) {\n  margin-top: 7px;\n  height: 53px;\n  opacity: 0.85;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(3) {\n  margin-top: 14px;\n  height: 46px;\n  opacity: 0.7;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(4) {\n  margin-top: 21px;\n  height: 39px;\n  opacity: 0.55;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(5) {\n  margin-top: 28px;\n  height: 32px;\n  opacity: 0.4;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(6) {\n  margin-top: 0px;\n  height: 60px;\n  opacity: 1;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(7) {\n  margin-top: 7px;\n  height: 53px;\n  opacity: 0.85;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(8) {\n  margin-top: 14px;\n  height: 46px;\n  opacity: 0.7;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(9) {\n  margin-top: 21px;\n  height: 39px;\n  opacity: 0.55;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(10) {\n  margin-top: 28px;\n  height: 32px;\n  opacity: 0.4;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(5) {\n  width: calc(10% - 1px);\n  margin-right: 1px;\n}\n\n/** Survey Description **/\n\n.survey-rating__descriptions--left {\n  float: left;\n}\n\n.survey-rating__descriptions--right {\n  float: right;\n}\n\n/** Survey Like **/\n\n.survey__view--hide {\n  top: -200px;\n}\n\n.survey__like {\n  position: absolute;\n  bottom: -200px;\n  left: 0;\n  right: 0;\n  height: 120px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n}\n\n.survey__like--show {\n  bottom: 0;\n}\n\n.survey-like__thanks {\n}\n\n.survey-actions--left {\n  float: left;\n}\n\n.survey-actions--right {\n  float: right;\n}\n\n/** Survey Close **/\n\n.survey__close {\n  position: absolute;\n  top: 0;\n  right: 10px;\n  font-size: 1.5rem;\n  color: #aaa;\n  cursor: pointer;\n}\n\n.survey__close:hover {\n  color: #666;\n}\n", ""]);
+	exports.push([module.id, "/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */\n\n/**\n * 1. Change the default font family in all browsers (opinionated).\n * 2. Prevent adjustments of font size after orientation changes in IE and iOS.\n */\n\nhtml {\n  font-family: sans-serif; /* 1 */\n  -ms-text-size-adjust: 100%; /* 2 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n}\n\n/**\n * Remove the margin in all browsers (opinionated).\n */\n\nbody {\n  margin: 0;\n}\n\n/* HTML5 display definitions\n   ========================================================================== */\n\n/**\n * Add the correct display in IE 9-.\n * 1. Add the correct display in Edge, IE, and Firefox.\n * 2. Add the correct display in IE.\n */\n\narticle, aside, details, figcaption, figure, footer, header, main, menu, nav, section, summary { /* 1 */\n  display: block;\n}\n\n/**\n * Add the correct display in IE 9-.\n */\n\naudio, canvas, progress, video {\n  display: inline-block;\n}\n\n/**\n * Add the correct display in iOS 4-7.\n */\n\naudio:not([controls]) {\n  display: none;\n  height: 0;\n}\n\n/**\n * Add the correct vertical alignment in Chrome, Firefox, and Opera.\n */\n\nprogress {\n  vertical-align: baseline;\n}\n\n/**\n * Add the correct display in IE 10-.\n * 1. Add the correct display in IE.\n */\n\ntemplate, [hidden] {\n  display: none;\n}\n\n/* Links\n   ========================================================================== */\n\n/**\n * 1. Remove the gray background on active links in IE 10.\n * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.\n */\n\na {\n  background-color: transparent; /* 1 */\n  -webkit-text-decoration-skip: objects; /* 2 */\n}\n\n/**\n * Remove the outline on focused links when they are also active or hovered\n * in all browsers (opinionated).\n */\n\na:active, a:hover {\n  outline-width: 0;\n}\n\n/* Text-level semantics\n   ========================================================================== */\n\n/**\n * 1. Remove the bottom border in Firefox 39-.\n * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.\n */\n\nabbr[title] {\n  border-bottom: none; /* 1 */\n  text-decoration: underline; /* 2 */\n  text-decoration: underline dotted; /* 2 */\n}\n\n/**\n * Prevent the duplicate application of `bolder` by the next rule in Safari 6.\n */\n\nb, strong {\n  font-weight: inherit;\n}\n\n/**\n * Add the correct font weight in Chrome, Edge, and Safari.\n */\n\nb, strong {\n  font-weight: bolder;\n}\n\n/**\n * Add the correct font style in Android 4.3-.\n */\n\ndfn {\n  font-style: italic;\n}\n\n/**\n * Correct the font size and margin on `h1` elements within `section` and\n * `article` contexts in Chrome, Firefox, and Safari.\n */\n\nh1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}\n\n/**\n * Add the correct background and color in IE 9-.\n */\n\nmark {\n  background-color: #ff0;\n  color: #000;\n}\n\n/**\n * Add the correct font size in all browsers.\n */\n\nsmall {\n  font-size: 80%;\n}\n\n/**\n * Prevent `sub` and `sup` elements from affecting the line height in\n * all browsers.\n */\n\nsub, sup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/* Embedded content\n   ========================================================================== */\n\n/**\n * Remove the border on images inside links in IE 10-.\n */\n\nimg {\n  border-style: none;\n}\n\n/**\n * Hide the overflow in IE.\n */\n\nsvg:not(:root) {\n  overflow: hidden;\n}\n\n/* Grouping content\n   ========================================================================== */\n\n/**\n * 1. Correct the inheritance and scaling of font size in all browsers.\n * 2. Correct the odd `em` font sizing in all browsers.\n */\n\ncode, kbd, pre, samp {\n  font-family: monospace, monospace; /* 1 */\n  font-size: 1em; /* 2 */\n}\n\n/**\n * Add the correct margin in IE 8.\n */\n\nfigure {\n  margin: 1em 40px;\n}\n\n/**\n * 1. Add the correct box sizing in Firefox.\n * 2. Show the overflow in Edge and IE.\n */\n\nhr {\n  box-sizing: content-box; /* 1 */\n  height: 0; /* 1 */\n  overflow: visible; /* 2 */\n}\n\n/* Forms\n   ========================================================================== */\n\n/**\n * 1. Change font properties to `inherit` in all browsers (opinionated).\n * 2. Remove the margin in Firefox and Safari.\n */\n\nbutton, input, select, textarea {\n  font: inherit; /* 1 */\n  margin: 0; /* 2 */\n}\n\n/**\n * Restore the font weight unset by the previous rule.\n */\n\noptgroup {\n  font-weight: bold;\n}\n\n/**\n * Show the overflow in IE.\n * 1. Show the overflow in Edge.\n */\n\nbutton, input { /* 1 */\n  overflow: visible;\n}\n\n/**\n * Remove the inheritance of text transform in Edge, Firefox, and IE.\n * 1. Remove the inheritance of text transform in Firefox.\n */\n\nbutton, select { /* 1 */\n  text-transform: none;\n}\n\n/**\n * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`\n *    controls in Android 4.\n * 2. Correct the inability to style clickable types in iOS and Safari.\n */\n\nbutton, html [type=\"button\"], [type=\"reset\"], [type=\"submit\"] {\n  -webkit-appearance: button; /* 2 */\n}\n\n/**\n * Remove the inner border and padding in Firefox.\n */\n\nbutton::-moz-focus-inner, [type=\"button\"]::-moz-focus-inner, [type=\"reset\"]::-moz-focus-inner, [type=\"submit\"]::-moz-focus-inner {\n  border-style: none;\n  padding: 0;\n}\n\n/**\n * Restore the focus styles unset by the previous rule.\n */\n\nbutton:-moz-focusring, [type=\"button\"]:-moz-focusring, [type=\"reset\"]:-moz-focusring, [type=\"submit\"]:-moz-focusring {\n  outline: 1px dotted ButtonText;\n}\n\n/**\n * Change the border, margin, and padding in all browsers (opinionated).\n */\n\nfieldset {\n  border: 1px solid #c0c0c0;\n  margin: 0 2px;\n  padding: 0.35em 0.625em 0.75em;\n}\n\n/**\n * 1. Correct the text wrapping in Edge and IE.\n * 2. Correct the color inheritance from `fieldset` elements in IE.\n * 3. Remove the padding so developers are not caught out when they zero out\n *    `fieldset` elements in all browsers.\n */\n\nlegend {\n  box-sizing: border-box; /* 1 */\n  color: inherit; /* 2 */\n  display: table; /* 1 */\n  max-width: 100%; /* 1 */\n  padding: 0; /* 3 */\n  white-space: normal; /* 1 */\n}\n\n/**\n * Remove the default vertical scrollbar in IE.\n */\n\ntextarea {\n  overflow: auto;\n}\n\n/**\n * 1. Add the correct box sizing in IE 10-.\n * 2. Remove the padding in IE 10-.\n */\n\n[type=\"checkbox\"], [type=\"radio\"] {\n  box-sizing: border-box; /* 1 */\n  padding: 0; /* 2 */\n}\n\n/**\n * Correct the cursor style of increment and decrement buttons in Chrome.\n */\n\n[type=\"number\"]::-webkit-inner-spin-button, [type=\"number\"]::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/**\n * 1. Correct the odd appearance in Chrome and Safari.\n * 2. Correct the outline style in Safari.\n */\n\n[type=\"search\"] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/**\n * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.\n */\n\n[type=\"search\"]::-webkit-search-cancel-button, [type=\"search\"]::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/**\n * Correct the text style of placeholders in Chrome, Edge, and Safari.\n */\n\n::-webkit-input-placeholder {\n  color: inherit;\n  opacity: 0.54;\n}\n\n/**\n * 1. Correct the inability to style clickable types in iOS and Safari.\n * 2. Change font properties to `inherit` in Safari.\n */\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\nimg {\n  width: 100%;\n  height: auto;\n}\n\n.main {\n  max-width: 600px;\n  margin: 0 auto;\n}\n\n.survey {\n  width: 100%;\n  box-sizing: border-box;\n  font-family: sans-serif;\n  overflow: hidden;\n\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n\n  background-color: #FFF;\n  color: #555;\n  border-top: 3px #2abef7 solid;\n\n\n  -webkit-transition: all 0.5s;\n\n\n  transition: all 0.5s;\n}\n\n.survey--hidden {\n  bottom: -3px;\n  height: 0;\n}\n\n.survey--show {\n  bottom: 0;\n  height: 120px;\n}\n\n.survey__view {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 120px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n}\n\n.survey__question {\n  display: inline-block;\n  font-size: 1.4rem;\n  max-width: 40%;\n  margin-right: 3%;\n}\n\n.survey__rating {\n  display: inline-block;\n  width: 47%;\n  max-width: 400px;\n}\n\n.survey-rating__bars {\n  width: 100%;\n  height: 60px;\n}\n\n.survey-rating__descriptions {\n  width: 100%;\n  font-size: 0.7rem;\n  margin-top: 3px;\n  letter-spacing: 0.5px;\n}\n\n/** Survey Bars **/\n\n.survey-rating__bar {\n  display: inline-block;\n  background-color: #ccc;\n  width: 10%;\n  cursor: pointer;\n  -webkit-transition: background-color 0.5s;\n  transition: background-color 0.5s;\n}\n\n.survey-rating__bar--left:hover, .survey-rating__bar--left:hover ~ .survey-rating__bar--left {\n  background-color: rgb(255, 71, 71);\n}\n\n.survey-rating__bar--right:hover, .survey-rating__bar--right:hover ~ .survey-rating__bar--right {\n  background-color: rgb(71, 123, 255);\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(1) {\n  margin-top: 0px;\n  height: 60px;\n  opacity: 1;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(2) {\n  margin-top: 7px;\n  height: 53px;\n  opacity: 0.85;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(3) {\n  margin-top: 14px;\n  height: 46px;\n  opacity: 0.7;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(4) {\n  margin-top: 21px;\n  height: 39px;\n  opacity: 0.55;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(5) {\n  margin-top: 28px;\n  height: 32px;\n  opacity: 0.4;\n  float: left;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(6) {\n  margin-top: 0px;\n  height: 60px;\n  opacity: 1;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(7) {\n  margin-top: 7px;\n  height: 53px;\n  opacity: 0.85;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(8) {\n  margin-top: 14px;\n  height: 46px;\n  opacity: 0.7;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(9) {\n  margin-top: 21px;\n  height: 39px;\n  opacity: 0.55;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(10) {\n  margin-top: 28px;\n  height: 32px;\n  opacity: 0.4;\n  float: right;\n}\n\n.survey-rating__bars .survey-rating__bar:nth-child(5) {\n  width: calc(10% - 1px);\n  margin-right: 1px;\n}\n\n/** Survey Description **/\n\n.survey-rating__descriptions--left {\n  float: left;\n}\n\n.survey-rating__descriptions--right {\n  float: right;\n}\n\n/** Survey Like **/\n\n.survey__view--hide {\n  top: -200px;\n}\n\n.survey__like {\n  position: absolute;\n  bottom: -200px;\n  left: 0;\n  right: 0;\n  height: 120px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n}\n\n.survey__like--show {\n  bottom: 0;\n}\n\n.survey-like__thanks {\n  margin-bottom: 10px;\n}\n\n.survey-like__actions {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n}\n\n.survey-actions--left {\n  margin-right: 10px;\n  height: 20px;\n}\n\n.survey-actions--right {\n  cursor: pointer;\n  height: 20px;\n  font-size: 0.7rem;\n  line-height: 1.8;\n  color: #aaa;\n}\n\n.survey-actions--right:hover {\n  color: rgb(105, 199, 214);\n}\n\n/** Thanks Screen **/\n\n.survey__thanks {\n  position: absolute;\n  bottom: -200px;\n  left: 0;\n  right: 0;\n  height: 120px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-transition: all 0.5s;\n  transition: all 0.5s;\n}\n\n.survey__thanks--show {\n  bottom: 0;\n}\n\n.survey--hidden .survey__thanks--show {\n  bottom: -200px;\n}\n\n/** Survey Close **/\n\n.survey__close {\n  position: absolute;\n  top: 0;\n  right: 10px;\n  font-size: 1.5rem;\n  color: #aaa;\n  cursor: pointer;\n}\n\n.survey__close:hover {\n  color: #666;\n}\n", ""]);
 	
 	// exports
 
