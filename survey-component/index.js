@@ -38,7 +38,7 @@ function checkItem({ props }) {
 
   if (!props.onCheckItem) return;
 
-  props.onCheckItem(props.item).then(result => {
+  props.onCheckItem(props.survey, props.item).then(result => {
     props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
   });
 }
@@ -89,10 +89,12 @@ function handleLike(model) {
   return like;
 }
 
-function handleClose({ setState, state, props }) {
+function handleLikeClose({ setState, state, props }) {
   if (state.isClosing) return () => {};
 
   return () => {
+    props.onLikeClose && props.onLikeClose(props.survey, props.item);
+
     thanksClose(setState, state, props);
   };
 }
@@ -181,7 +183,7 @@ function createSurvey(model, isInteractive) {
           </div>
           <div
             class="survey-actions--right"
-            onClick={interact(handleClose(model))}
+            onClick={interact(handleLikeClose(model))}
           >
             No, I'm good
           </div>

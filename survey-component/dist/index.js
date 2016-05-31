@@ -95,8 +95,8 @@ module.exports =
 	  var space = itemBottom - middle;
 	
 	  if (space < 0 || space / container.offsetHeight <= 1 - percent) {
-	    props.onSurveyShown && props.onSurveyShown(props.item);
-	    props.onImpression && props.onImpression(props.item);
+	    props.onSurveyShown && props.onSurveyShown(props.survey, props.item);
+	    props.onImpression && props.onImpression(props.survey, props.item);
 	  }
 	}
 	
@@ -104,14 +104,14 @@ module.exports =
 	  var props = _ref2.props;
 	
 	  if (props.item === undefined || props.item === null) {
-	    props.onItemStatus && props.onItemStatus(false);
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
 	    return;
 	  }
 	
 	  if (!props.onCheckItem) return;
 	
-	  props.onCheckItem(props.item).then(function (result) {
-	    props.onItemStatus && props.onItemStatus(result);
+	  props.onCheckItem(props.survey, props.item).then(function (result) {
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
 	  });
 	}
 	
@@ -143,7 +143,7 @@ module.exports =
 	  var closeTime = props.closeTime || 1000;
 	  setState({ isClosing: true }, false, props.stateAction);
 	  window.setTimeout(function () {
-	    props.onClose && props.onClose();
+	    props.onClose && props.onClose(props.survey, props.item);
 	    if (props.FB && state.handleLike) {
 	      props.FB.Event.unsubscribe('edge.create', state.handleLike);
 	    }
@@ -159,7 +159,7 @@ module.exports =
 	  if (state.likeHandler) return function () {};
 	
 	  function like() {
-	    props.onLike && props.onLike(props.item);
+	    props.onLike && props.onLike(props.survey, props.item);
 	    thanksClose(setState, state, props);
 	  }
 	
@@ -167,7 +167,7 @@ module.exports =
 	  return like;
 	}
 	
-	function handleClose(_ref3) {
+	function handleLikeClose(_ref3) {
 	  var setState = _ref3.setState;
 	  var state = _ref3.state;
 	  var props = _ref3.props;
@@ -175,13 +175,15 @@ module.exports =
 	  if (state.isClosing) return function () {};
 	
 	  return function () {
+	    props.onLikeClose && props.onLikeClose(props.survey, props.item);
+	
 	    thanksClose(setState, state, props);
 	  };
 	}
 	
 	function handleClick(setState, state, props, score) {
 	  return function () {
-	    props.onRate && props.onRate(props.item, score);
+	    props.onRate && props.onRate(props.survey, props.item, score);
 	    if (props.liked) {
 	      thanksClose(setState, state, props);
 	      return;
@@ -294,7 +296,7 @@ module.exports =
 	          'div',
 	          {
 	            'class': 'survey-actions--right',
-	            onClick: interact(handleClose(model))
+	            onClick: interact(handleLikeClose(model))
 	          },
 	          'No, I\'m good'
 	        )
@@ -340,8 +342,16 @@ module.exports =
 	  );
 	}
 	
+	function isReady(_ref4) {
+	  var props = _ref4.props;
+	
+	  return props.survey !== undefined && props.survey !== null && props.container && props.item !== undefined && props.item !== null;
+	}
+	
 	function onCreate(model) {
 	  var props = model.props;
+	  if (!isReady(model)) return;
+	
 	  model.setState({
 	    container: props.container
 	  }, true);
@@ -352,19 +362,18 @@ module.exports =
 	
 	function onUpdate(model) {
 	  var props = model.props;
-	  model.setState({
-	    container: props.container
-	  }, true);
-	  if (model.state.container !== model.props.container) {
+	  if (!isReady(model)) return;
+	
+	  if (model.state.container !== props.container) {
 	    checkItem(model);
-	    model.setState({ container: model.props.container }, true);
+	    model.setState({ container: props.container }, true);
 	  }
 	
 	  toggleScrollChecks(model);
 	}
 	
-	function onRemove(_ref4) {
-	  var setState = _ref4.setState;
+	function onRemove(_ref5) {
+	  var setState = _ref5.setState;
 	
 	  setState({ isAnimating: false }, true);
 	}
