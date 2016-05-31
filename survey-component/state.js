@@ -26,10 +26,6 @@ export default function state(component, initialState, action) {
   }
 
   function render(model) {
-    return component.render(merge(model));
-  }
-
-  function onCreate(model) {
     if (!states[model.path]) {
       if (initialState) {
         states[model.path] = Object.assign({}, initialState());
@@ -37,6 +33,11 @@ export default function state(component, initialState, action) {
         states[model.path] = {};
       }
     }
+
+    return component.render(merge(model));
+  }
+
+  function onCreate(model) {
     if (component.onCreate) component.onCreate(merge(model));
   }
 

@@ -1,5 +1,7 @@
 /** @jsx element */
 /* eslint-disable */
+require('./example.css');
+
 import faker from 'faker';
 import { element, createApp } from 'deku';
 import _ from 'lodash';
@@ -11,6 +13,7 @@ const store = {
   container: null,
   show: false,
   valid: false,
+  question: 'Was this article worth your time?',
 };
 
 const articles = [];
@@ -65,8 +68,14 @@ function dummyCheckItem() {
 const Root = {
   render({ dispatch }) {
     return (
-      <div class="main">
-        <button onClick={() => dispatch()}>Dispatch</button>
+      <div>
+        <div class="main">
+          <button onClick={() => dispatch()}>Dispatch</button>
+          <h1>Survey Component Example</h1>
+          <Article id="article-1" article={0} initial={true} />
+          <Article id="article-2" article={1} />
+          <Article id="article-3" article={2} />
+        </div>
         <Survey
           container={store.container}
           item={0}
@@ -75,11 +84,10 @@ const Root = {
           onSurveyShown={(item) => { store.show = true; dispatch(); }}
           show={store.show}
           valid={store.valid}
+          liked={false}
+          question={store.question}
+          onClose={() => { store.show = false; dispatch() }}
         />
-        <h1>Survey Component Example</h1>
-        <Article id="article-1" article={0} initial={true} />
-        <Article id="article-2" article={1} />
-        <Article id="article-3" article={2} />
       </div>
     );
   },

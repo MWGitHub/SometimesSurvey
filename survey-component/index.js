@@ -8,6 +8,7 @@ function initialState() {
     hasAnimated: false,
     isAnimating: true,
     container: null,
+    showLike: false,
   };
 }
 
@@ -59,19 +60,103 @@ function toggleScrollChecks(model) {
   });
 }
 
-function render({ props }) {
-  let footer = null;
-  if (props.show) {
-    footer = (
-      <div class="survey__footer">
+function handleClick(setState, props, score) {
+  return () => {
+    props.onRate && props.onRate(props.item, score);
+    console.log(score);
+    if (props.liked) return;
 
-      </div>
-    );
+    const threshold = props.threshold || 7;
+    if (score >= threshold) {
+      setState({
+        showLike: true,
+      });
+    }
+  };
+}
+
+function createSurvey(setState, state, props, isInteractive) {
+  function interact(fn) {
+    if (isInteractive) return fn;
+
+    return () => {};
   }
 
+  let bars = [1, 2, 3, 4, 5, 10, 9, 8, 7, 6];
+  bars = bars.map(v => {
+    let cls = '';
+    if (v <= bars.length / 2) {
+      cls += 'survey-rating__bar--left ';
+    } else {
+      cls += 'survey-rating__bar--right ';
+    }
+    cls += `survey-rating__bar survey-rating__bar--${v} `;
+    return (
+      <div
+        key={v}
+        class={cls}
+        onClick={interact(handleClick(setState, props, v))}
+      >
+      </div>
+    );
+  });
+
+  let viewClass = 'survey__view ';
+  let likeClass = 'survey__like ';
+  if (state.showLike) {
+    viewClass += 'survey__view--hide';
+    likeClass += 'survey__like--show';
+  }
   return (
-    <div class="survey">
-      {footer}
+    <div class="survey-wrapper">
+      <div class={viewClass}>
+        <div class="survey__question">
+          {props.question}
+        </div>
+        <div class="survey__rating">
+          <div class="survey-rating__bars">
+            {bars}
+          </div>
+          <div class="survey-rating__descriptions">
+            <div class="survey-rating__descriptions--left">Not at all</div>
+            <div class="survey-rating__descriptions--right">Absolutely</div>
+          </div>
+        </div>
+        <div class="survey__close" onClick={interact(props.onClose)}>
+          x
+        </div>
+      </div>
+      <div class={likeClass}>
+        <div class="survey-like__thanks">Thanks! Follow Mic on Facebook</div>
+        <div class="survey-like__actions">
+          <div class="survey-actions--left">
+            Like
+          </div>
+          <div class="survey-actions--right">
+            No, I'm good
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function render({ state, setState, props }) {
+  let view = null;
+
+  if (state.hasAnimated) {
+    if (props.show) {
+      view = createSurvey(setState, state, props, true);
+    } else {
+      view = createSurvey(setState, state, props, false);
+    }
+  }
+
+  let surveyClass = 'survey ';
+  surveyClass += props.show ? 'survey--show' : 'survey--hidden';
+  return (
+    <div class={surveyClass}>
+      {view}
     </div>
   );
 }
@@ -104,8 +189,8 @@ function onRemove({ setState }) {
 }
 
 // :(
-// Couldn't think of doing this cleanly without states when multiple
-// survey components are needed.
+// Couldn't think of doing this cleanly without states when using
+// requestAnimationFrame for better experience on mobile
 export default stater({
   render,
   onCreate,
