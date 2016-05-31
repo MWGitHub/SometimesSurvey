@@ -76,8 +76,8 @@
 	/** @jsx element */
 	/* eslint-disable */
 	__webpack_require__(993);
+	__webpack_require__(997);
 	__webpack_require__(999);
-	__webpack_require__(1001);
 	
 	var store = {
 	  container: null,
@@ -88445,7 +88445,7 @@
 	  if (state.isClosing) return;
 	
 	  var closeTime = props.closeTime || 1000;
-	  setState({ isClosing: true });
+	  setState({ isClosing: true }, false, props.stateAction);
 	  window.setTimeout(function () {
 	    props.onClose && props.onClose();
 	    if (props.FB && state.handleLike) {
@@ -88495,7 +88495,7 @@
 	    if (score >= threshold) {
 	      setState({
 	        showLike: true
-	      });
+	      }, false, props.stateAction);
 	    } else {
 	      thanksClose(setState, state, props);
 	    }
@@ -88700,19 +88700,21 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function state(component, initialState, action) {
+	function state(component, initialState) {
 	  var states = {};
 	  var dispatch = null;
+	  var action = null;
 	
 	  var update = (0, _lightDebounce2.default)(function () {
-	    dispatch(action);
+	    if (action) dispatch(action);
 	  }, 0);
 	
 	  function setState(model) {
-	    return function (changes, quiet) {
+	    return function (changes, quiet, inputAction) {
 	      states[model.path] = Object.assign(states[model.path], changes);
 	      if (!quiet) {
 	        dispatch = model.dispatch;
+	        action = inputAction;
 	        update();
 	      }
 	    };
@@ -88768,16 +88770,14 @@
 /* 994 */,
 /* 995 */,
 /* 996 */,
-/* 997 */,
-/* 998 */,
-/* 999 */
+/* 997 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
 
 /***/ },
-/* 1000 */,
-/* 1001 */
+/* 998 */,
+/* 999 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

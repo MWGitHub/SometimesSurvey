@@ -1,18 +1,20 @@
 import debounce from 'light-debounce';
 
-export default function state(component, initialState, action) {
+export default function state(component, initialState) {
   const states = {};
   let dispatch = null;
+  let action = null;
 
   const update = debounce(() => {
-    dispatch(action);
+    if (action) dispatch(action);
   }, 0);
 
   function setState(model) {
-    return (changes, quiet) => {
+    return (changes, quiet, inputAction) => {
       states[model.path] = Object.assign(states[model.path], changes);
       if (!quiet) {
         dispatch = model.dispatch;
+        action = inputAction;
         update();
       }
     };

@@ -66,7 +66,7 @@ function thanksClose(setState, state, props) {
   if (state.isClosing) return;
 
   const closeTime = props.closeTime || 1000;
-  setState({ isClosing: true });
+  setState({ isClosing: true }, false, props.stateAction);
   window.setTimeout(() => {
     props.onClose && props.onClose();
     if (props.FB && state.handleLike) {
@@ -81,7 +81,7 @@ function handleLike(model) {
   if (state.likeHandler) return () => {};
 
   function like() {
-    props.onLike && props.onLike();
+    props.onLike && props.onLike(props.item);
     thanksClose(setState, state, props);
   }
 
@@ -109,7 +109,7 @@ function handleClick(setState, state, props, score) {
     if (score >= threshold) {
       setState({
         showLike: true,
-      });
+      }, false, props.stateAction);
     } else {
       thanksClose(setState, state, props);
     }
