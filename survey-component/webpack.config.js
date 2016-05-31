@@ -13,8 +13,8 @@ module.exports = {
   entry: ['./example/main'],
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, 'example'),
-    publicPath: '/example/',
+    path: path.join(__dirname, 'build'),
+    publicPath: '/build/',
   },
   module: {
     loaders: [
@@ -29,7 +29,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new ExtractTextPlugin(path.join('..', 'index.css')),
+    new ExtractTextPlugin('bundle.css'),
   ],
   postcss: function () {
     return [

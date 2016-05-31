@@ -14,9 +14,6 @@
   border-top: 3px #2abef7 solid;
 
 
-  -webkit-transition: all 0.5s;
-
-
   transition: all 0.5s;
 }
 
@@ -36,16 +33,9 @@
   left: 0;
   right: 0;
   height: 120px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-transition: all 0.5s;
+  justify-content: center;
+  align-items: center;
   transition: all 0.5s;
 }
 
@@ -81,86 +71,35 @@
   background-color: #ccc;
   width: 10%;
   cursor: pointer;
-  -webkit-transition: background-color 0.5s;
   transition: background-color 0.5s;
 }
 
-.survey-rating__bar--left:hover, .survey-rating__bar--left:hover ~ .survey-rating__bar--left {
+.survey-rating__bar--left:hover,
+.survey-rating__bar--left:hover ~ .survey-rating__bar--left {
   background-color: rgb(255, 71, 71);
 }
 
-.survey-rating__bar--right:hover, .survey-rating__bar--right:hover ~ .survey-rating__bar--right {
+.survey-rating__bar--right:hover,
+.survey-rating__bar--right:hover ~ .survey-rating__bar--right {
   background-color: rgb(71, 123, 255);
 }
 
-.survey-rating__bars .survey-rating__bar:nth-child(1) {
-  margin-top: 0px;
-  height: 60px;
-  opacity: 1;
-  float: left;
+@for $i from 1 to 5 {
+  .survey-rating__bars .survey-rating__bar:nth-child($i) {
+    margin-top: resolve(($i - 1) * 7px);
+    height: resolve(60px - ($i - 1) * 7px);
+    opacity: resolve(1 - ($i - 1) * 0.15);
+    float: left;
+  }
 }
 
-.survey-rating__bars .survey-rating__bar:nth-child(2) {
-  margin-top: 7px;
-  height: 53px;
-  opacity: 0.85;
-  float: left;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(3) {
-  margin-top: 14px;
-  height: 46px;
-  opacity: 0.7;
-  float: left;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(4) {
-  margin-top: 21px;
-  height: 39px;
-  opacity: 0.55;
-  float: left;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(5) {
-  margin-top: 28px;
-  height: 32px;
-  opacity: 0.4;
-  float: left;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(6) {
-  margin-top: 0px;
-  height: 60px;
-  opacity: 1;
-  float: right;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(7) {
-  margin-top: 7px;
-  height: 53px;
-  opacity: 0.85;
-  float: right;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(8) {
-  margin-top: 14px;
-  height: 46px;
-  opacity: 0.7;
-  float: right;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(9) {
-  margin-top: 21px;
-  height: 39px;
-  opacity: 0.55;
-  float: right;
-}
-
-.survey-rating__bars .survey-rating__bar:nth-child(10) {
-  margin-top: 28px;
-  height: 32px;
-  opacity: 0.4;
-  float: right;
+@for $i from 6 to 10 {
+  .survey-rating__bars .survey-rating__bar:nth-child($i) {
+    margin-top: resolve(($i - 6) * 7px);
+    height: resolve(60px - ($i - 6) * 7px);
+    opacity: resolve(1 - ($i - 6) * 0.15);
+    float: right;
+  }
 }
 
 .survey-rating__bars .survey-rating__bar:nth-child(5) {
@@ -179,7 +118,6 @@
 }
 
 /** Survey Like **/
-
 .survey__view--hide {
   top: -200px;
 }
@@ -190,20 +128,10 @@
   left: 0;
   right: 0;
   height: 120px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-transition: all 0.5s;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   transition: all 0.5s;
 }
 
@@ -216,15 +144,9 @@
 }
 
 .survey-like__actions {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .survey-actions--left {
@@ -252,16 +174,9 @@
   left: 0;
   right: 0;
   height: 120px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-transition: all 0.5s;
+  justify-content: center;
+  align-items: center;
   transition: all 0.5s;
 }
 
@@ -287,5 +202,3 @@
 .survey__close:hover {
   color: #666;
 }
-
-/*# sourceMappingURL=index.css.map*/

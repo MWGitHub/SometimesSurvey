@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/example/";
+/******/ 	__webpack_require__.p = "/build/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -76,6 +76,8 @@
 	/** @jsx element */
 	/* eslint-disable */
 	__webpack_require__(993);
+	__webpack_require__(999);
+	__webpack_require__(1001);
 	
 	var store = {
 	  container: null,
@@ -88758,6 +88760,24 @@
 
 /***/ },
 /* 993 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 994 */,
+/* 995 */,
+/* 996 */,
+/* 997 */,
+/* 998 */,
+/* 999 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
+
+/***/ },
+/* 1000 */,
+/* 1001 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

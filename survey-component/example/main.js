@@ -1,6 +1,8 @@
 /** @jsx element */
 /* eslint-disable */
-require('../main.css');
+require('normalize.css');
+require('../index.css')
+require('./example.css');
 
 import faker from 'faker';
 import { element, createApp } from 'deku';
