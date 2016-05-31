@@ -4,6 +4,8 @@
   "description": "",
   "main": "simple.js",
   "scripts": {
+    "build": "webpack --progress --colors",
+    "watch": "webpack --progress --colors --watch",
     "start-survey": "node survey-server.js",
     "start-static": "http-server -p 6006",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,6 +20,32 @@
     "survey-server": "file:///Users/mw/projects/apps/sometimes-survey/survey-server"
   },
   "devDependencies": {
-    "http-server": "^0.9.0"
+    "autoprefixer": "^6.3.6",
+    "babel-core": "^6.9.1",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-tape-runner": "^2.0.1",
+    "css-loader": "^0.23.1",
+    "deku": "^2.0.0-rc16",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "faker": "^3.1.0",
+    "http-server": "^0.9.0",
+    "jsdom": "^9.2.1",
+    "light-debounce": "^1.0.2",
+    "lodash": "^4.13.1",
+    "normalize.css": "^4.1.1",
+    "postcss-for": "^2.0.3",
+    "postcss-import": "^8.1.2",
+    "postcss-loader": "^0.9.1",
+    "postcss-math": "0.0.1",
+    "postcss-simple-vars": "^2.0.0",
+    "precss": "^1.4.0",
+    "style-loader": "^0.13.1",
+    "survey-component": "file:///Users/mw/projects/apps/sometimes-survey/survey-component",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.5.1",
+    "webpack": "^1.13.1"
   }
 }

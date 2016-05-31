@@ -1,8 +1,11 @@
 {
   "name": "sometimes-survey",
   "version": "1.0.0",
-  "description": "",
-  "main": "run.js",
+  "description": "[![Build Status](https://travis-ci.org/MWGitHub/sometimes-survey.svg?branch=master)](https://travis-ci.org/MWGitHub/sometimes-survey)",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,11 +21,8 @@
   },
   "homepage": "https://github.com/MWGitHub/sometimes-survey#readme",
   "devDependencies": {
-    "eslint": "^2.11.0",
+    "eslint": "^2.11.1",
     "eslint-config-airbnb": "^9.0.1",
-    "eslint-plugin-import": "^1.8.1",
-    "eslint-plugin-jsx-a11y": "^1.2.2",
-    "eslint-plugin-react": "^5.1.1",
-    "postcss-loader": "^0.9.1"
+    "eslint-plugin-react": "^5.1.1"
   }
 }
