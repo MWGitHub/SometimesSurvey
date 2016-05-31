@@ -42,6 +42,8 @@
     "postcss-math": "0.0.1",
     "postcss-simple-vars": "^2.0.0",
     "precss": "^1.4.0",
+    "redux": "^3.5.2",
+    "reqwest": "^2.0.5",
     "style-loader": "^0.13.1",
     "survey-component": "file:///Users/mw/projects/apps/sometimes-survey/survey-component",
     "tap-spec": "^4.1.1",

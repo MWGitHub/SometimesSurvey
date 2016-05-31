@@ -3,15 +3,20 @@ import faker from 'faker';
 import { element, createApp } from 'deku';
 import _ from 'lodash';
 import debounce from 'light-debounce';
-
 import Survey from 'survey-component';
 
-const store = {
+import Article from './article';
+import { createStore } from 'redux';
+import { ACTIONS, reducer } from './reducers';
+
+const initialState = {
   container: null,
   show: false,
   valid: false,
   question: 'Was this article worth your time?',
 };
+
+const store = createStore(reducer, initialState);
 
 const articles = [];
 
@@ -33,62 +38,80 @@ function createArticle() {
   };
 }
 
-const Article = {
-  render({ props }) {
-    const article = articles[props.article];
-    const paragraphs = article.paragraphs.map(v => <p>{v}</p>);
-
-    return (
-      <div id={props.id}>
-        <h2>{article.title}</h2>
-        <img src={article.image} alt="main" />
-        {paragraphs}
-      </div>
-    );
-  },
-
-  onCreate({ props: { initial }, dispatch }) {
-    if (initial) {
-      setTimeout(() => {
-        dispatch(() => {
-          store.container = document.getElementById('article-1');
-        });
-      }, 0);
-    }
-  },
-};
-
 function dummyCheckItem() {
   return Promise.resolve(true);
 }
 
-const Root = {
+function handleReset(dispatch) {
+  return () => {
+    dispatch({ type: ACTIONS.UPDATE_UI });
+  };
+}
 
-  render({ dispatch }) {
+function handleFetchItemStatus(dispatch) {
+  return (result) => {
+    if (result) {
+      dispatch({ type: ACTIONS.SET_VALID });
+    } else {
+      dispatch({ type: ACTIONS.SET_INVALID });
+    }
+  };
+}
+
+function handleSurveyShown(dispatch) {
+  return (result) => {
+    dispatch({ type: ACTIONS.SHOW });
+  };
+}
+
+function handleImpression(item) {
+  console.log('track impression');
+}
+
+function handleLike(item) {
+  console.log('track like');
+}
+
+function handleRate(item, value) {
+  console.log('track rate', value);
+}
+
+function handleClose(dispatch) {
+  return (item) => {
+    console.log('track close');
+    dispatch({ type: ACTIONS.HIDE });
+  }
+}
+
+const Root = {
+  render({ context, dispatch }) {
+    console.log(context);
     const likeButton = <div class="fb-like" data-href="https://code-splat.com" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>;
     return (
       <div>
         <div class="main">
-          <button onClick={() => dispatch()}>Dispatch</button>
+          <button onClick={handleReset(dispatch)}>Reset</button>
           <h1>Survey Component Example</h1>
-          <Article id="article-1" article={0} initial={true} />
-          <Article id="article-2" article={1} />
-          <Article id="article-3" article={2} />
+          <Article id="article-1" article={articles[0]} initial={true} />
+          <Article id="article-2" article={articles[1]} />
+          <Article id="article-3" article={articles[2]} />
         </div>
         <Survey
-          container={store.container}
+          container={context.container}
           item={0}
           onCheckItem={dummyCheckItem}
-          onItemStatus={(result) => { store.valid = result; dispatch(); }}
-          onSurveyShown={(item) => { store.show = true; dispatch(); }}
-          show={store.show}
-          valid={store.valid}
+          onItemStatus={handleFetchItemStatus(dispatch)}
+          onSurveyShown={handleSurveyShown(dispatch)}
+          onImpression={handleImpression}
+          onLike={handleLike}
+          onRate={handleRate}
+          show={context.show}
+          valid={context.valid}
           liked={false}
           likeButton={likeButton}
-          question={store.question}
-          onLike={() => {}}
-          onRate={() => {}}
-          onClose={() => { store.show = false; dispatch() }}
+          question={context.question}
+          onClose={handleClose(dispatch)}
+          stateAction={{ type: ACTIONS.UPDATE_UI }}
           FB={window.FB}
         />
       </div>
@@ -97,16 +120,11 @@ const Root = {
 };
 
 function start() {
-  function dispatch(action) {
-    if (action && typeof action === 'function') {
-      action(store);
-    }
+  const render = createApp(document.getElementById('entry'), store.dispatch);
+  const update = debounce(() => { render(<Root />, store.getState()); });
+  store.subscribe(() => {
     update();
-  }
-
-  const render = createApp(document.getElementById('entry'), dispatch);
-  const update = debounce(() => { render(<Root />) });
-
+  });
 
   for (let i = 0; i < 3; ++i) {
     const article = createArticle();
