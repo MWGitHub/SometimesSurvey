@@ -5,6 +5,7 @@ const keyAuth = require('./key-auth');
 const knexfile = require('../knexfile');
 const database = require('./database');
 const api = require('./api');
+const good = require('good');
 
 class Server {
   constructor(inputOptions, connectionOptions) {
@@ -40,6 +41,20 @@ Server.prototype.initialize = function initialize() {
 
   const server = this._server;
   const plugins = [
+    {
+      register: good,
+      options: {
+        reporters: {
+          console: [{
+            module: 'good-squeeze',
+            name: 'Squeeze',
+            args: [{ log: '*', response: '*' }],
+          }, {
+            module: 'good-console',
+          }, 'stdout'],
+        },
+      },
+    },
     {
       register: api,
       options: {
