@@ -19,6 +19,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "babel-tape-runner": "^2.0.1",
     "deku": "^2.0.0-rc16",
+    "deku-stateful": "^1.4.0",
     "faker": "^3.1.0",
     "jsdom": "^9.2.1",
     "lodash": "^4.13.1",
