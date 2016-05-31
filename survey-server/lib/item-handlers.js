@@ -65,22 +65,23 @@ module.exports = {
         });
       }
 
-      let isShown = false;
+      const result = {
+        show: false,
+      };
       if (database.isConnected()) {
         const knex = database.knex();
         const survey = yield knex('surveys').first().where('id', surveyID);
         if (!survey) return false;
-        isShown = yield schemer.checkStatus(
+        result.show = yield schemer.checkStatus(
           id, survey.scheme, survey.deploy_time
         );
+        result.question = survey.question;
       } else {
-        isShown = yield schemer.checkStatus(id);
+        result.show = yield schemer.checkStatus(id);
       }
 
 
-      return reply({
-        show: isShown,
-      });
+      return reply(result);
     }).catch(e => reply(Boom.badImplementation(e)));
   },
 
