@@ -64,6 +64,25 @@
   letter-spacing: 0.5px;
 }
 
+@media (max-width: 768px) {
+  .survey__view {
+    flex-direction: column;
+  }
+
+  .survey__question {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    width: 100%;
+    max-width: 400px;
+    margin-right: 0;
+  }
+
+  .survey__rating {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
 /** Survey Bars **/
 
 .survey-rating__bar {
