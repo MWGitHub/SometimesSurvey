@@ -42,6 +42,7 @@ module.exports = {
     connection: {
       host: process.env.pg_host,
       user: process.env.pg_user,
+      password: process.env.pg_password,
       database: 'sometimes_survey',
     },
     seeds: {
