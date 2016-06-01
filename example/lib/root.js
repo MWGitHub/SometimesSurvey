@@ -21,25 +21,33 @@ const initialState = {
 const store = createStore(reducer, initialState);
 
 const articles = seeds.articles;
+const transition = 1000;
 
 function reset(dispatch) {
   dispatch({ type: ACTIONS.SET_CONTAINER, container: null });
   dispatch({ type: ACTIONS.SET_INVALID });
   dispatch({ type: ACTIONS.HIDE });
+
+  setTimeout(() => {
+    dispatch({ type: ACTIONS.UPDATE_UI });
+  }, transition * 1.5);
 }
 
 function handleDeleteCookie(dispatch) {
+  const survey = store.getState().survey;
   return () => {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; ++i) {
       const cookie = cookies[i];
       const index = cookie.indexOf('=');
       const name = index > -1 ? cookie.substr(0, index) : cookie;
-      if (_.trim(name) === 'survey-3') {
+      if (_.trim(name) === `survey-${survey}`) {
         document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       }
     }
-    reset(dispatch);
+    api.invalidateCookie(survey).then(() => {
+      reset(dispatch);
+    });
   };
 }
 

@@ -34,4 +34,13 @@ export default {
       },
     });
   },
+
+  invalidateCookie(surveyId) {
+    return request({
+      method: 'GET',
+      url: `${path}/surveys/${surveyId}/invalidate`,
+      crossOrigin: true,
+      withCredentials: true,
+    });
+  },
 };

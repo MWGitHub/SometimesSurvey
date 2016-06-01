@@ -42,6 +42,13 @@ module.exports = {
     }).catch(e => reply(Boom.badRequest(e)));
   },
 
+  invalidateCookie(request, reply) {
+    const surveyID = request.params.survey_id;
+    const cookieName = `survey-${surveyID}`;
+
+    reply().unstate(cookieName);
+  },
+
   deploySurvey(request, reply) {
     const knex = database.knex();
     const id = request.params.survey_id;

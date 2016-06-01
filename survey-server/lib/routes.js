@@ -87,6 +87,18 @@ module.exports = [
       },
     },
   },
+  {
+    method: 'GET',
+    path: `${api.path}/surveys/{survey_id}/invalidate`,
+    config: {
+      handler: surveyHandlers.invalidateCookie,
+      validate: {
+        params: {
+          survey_id: Joi.number().integer().required(),
+        },
+      },
+    },
+  },
   surveyRoute(`${api.path}/surveys/{survey_id}/deploy`, 'POST',
     surveyHandlers.deploySurvey, {
       deploy_time: Joi.date(),
