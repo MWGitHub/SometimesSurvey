@@ -97,7 +97,8 @@ module.exports = {
 
     return co(function* log() {
       // Make sure not making an impression when a cookie is present
-      if (event === events.EVENTS.IMPRESSION && request.state[surveyID]) {
+      const cookieName = `survey-${surveyID}`;
+      if (event === events.EVENTS.IMPRESSION && request.state[cookieName]) {
         return reply(Boom.badRequest());
       }
 
@@ -124,8 +125,8 @@ module.exports = {
       if (event === events.EVENTS.IMPRESSION) {
         makeCookie = true;
         fingerprint = uuid.v4();
-      } else if (request.state[surveyID]) {
-        const cookie = yield api.unseal(request.state[surveyID]);
+      } else if (request.state[cookieName]) {
+        const cookie = yield api.unseal(request.state[cookieName]);
         fingerprint = cookie;
       }
 
@@ -145,7 +146,7 @@ module.exports = {
       yield knex('events').insert(model);
 
       if (makeCookie) {
-        return reply().state(surveyID, fingerprint, {
+        return reply().state(cookieName, fingerprint, {
           ttl: api.ttl,
           password: api.password,
           encoding: 'iron',

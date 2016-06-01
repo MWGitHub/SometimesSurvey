@@ -92564,6 +92564,10 @@
 	  value: true
 	});
 	
+	var _stringify = __webpack_require__(7);
+	
+	var _stringify2 = _interopRequireDefault(_stringify);
+	
 	var _reqwest = __webpack_require__(1084);
 	
 	var _reqwest2 = _interopRequireDefault(_reqwest);
@@ -92594,7 +92598,10 @@
 	      url: path + '/surveys/' + surveyId + '/items/' + itemId + '/events',
 	      crossOrigin: true,
 	      withCredentials: true,
-	      data: data
+	      data: {
+	        event: data.event,
+	        data: (0, _stringify2.default)(data.data)
+	      }
 	    });
 	  }
 	};

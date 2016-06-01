@@ -26,7 +26,10 @@ export default {
       url: `${path}/surveys/${surveyId}/items/${itemId}/events`,
       crossOrigin: true,
       withCredentials: true,
-      data,
+      data: {
+        event: data.event,
+        data: JSON.stringify(data.data),
+      },
     });
   },
 };
