@@ -13,8 +13,8 @@ module.exports = {
   entry: ['./lib/main'],
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, 'build'),
-    publicPath: '/build/',
+    path: path.join(__dirname, 'static'),
+    publicPath: '/static/',
   },
   module: {
     loaders: [
