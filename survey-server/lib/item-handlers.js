@@ -58,7 +58,8 @@ module.exports = {
 
     return co(function* status() {
       // Check if cookied against
-      const cookie = request.state[surveyID];
+      const cookieName = `survey-${surveyID}`;
+      const cookie = request.state[cookieName];
       if (cookie) {
         return reply({
           show: false,
@@ -150,6 +151,8 @@ module.exports = {
           ttl: api.ttl,
           password: api.password,
           encoding: 'iron',
+          isHttpOnly: false,
+          path: '/',
         });
       }
       return reply();
