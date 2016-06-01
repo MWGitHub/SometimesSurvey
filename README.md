@@ -13,6 +13,10 @@ Check out the survey server and component in action here:
 The API server can be queried manually here:  
 [http://survey-api.mwguy.com/](http://survey-api.mwguy.com/)
 
+###Notes
+The front-end needs to be refactored badly.
+All combinations of showing articles have been unit tested in the survey-scheme-article folder.
+
 ###Architecture
 
 #####Overview
