@@ -2,6 +2,15 @@
 
 # sometimes-survey
 
+###Welcome
+![welcome]
+
+Check out the survey server and component in action here:  
+[http://survey.mwguy.com/](http://survey.mwguy.com/)
+
+The API server can be queried manually here:  
+[http://survey-api.mwguy.com/](http://survey-api.mwguy.com/)
+
 ###Architecture
 
 #####Overview
@@ -103,7 +112,6 @@ The flow will be in this order:
 #####Survey Endpoints
 
 Private endpoints require authentication.
-More detailed information about endpoints [here][server-endpoints]
 
 `GET  auth /v1/surveys/`: Retrieve all surveys.  
 `POST auth /v1/surveys/`: Create a new survey.  
@@ -143,4 +151,4 @@ Each step creates tests before creating the implementation. Tests and examples t
 
 
 
-[server-endpoints]: https://github.com/mwgithub/sometimes-survey/blob/master/survey-server/docs/
+[welcome]: ./docs/images/welcome.png

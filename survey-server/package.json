@@ -1,10 +1,9 @@
 {
   "name": "survey-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node examples/simple.js",
     "migrate-test": "NODE_ENV=test knex migrate:latest",
     "migrate": "knex migrate:latest",
     "seed-test": "NODE_ENV=test knex seed:run",
@@ -21,12 +20,16 @@
     "good-console": "^6.1.2",
     "good-squeeze": "^3.0.1",
     "hapi": "^13.4.1",
+    "hapi-swagger": "^6.0.0",
+    "inert": "^4.0.0",
     "iron": "^4.0.1",
     "joi": "^8.1.1",
     "knex": "^0.11.5",
     "lodash": "^4.13.1",
+    "lout": "^9.0.0",
     "node-uuid": "^1.4.7",
-    "pg": "^4.5.5"
+    "pg": "^4.5.5",
+    "vision": "^4.1.0"
   },
   "devDependencies": {
     "moment": "^2.13.0",

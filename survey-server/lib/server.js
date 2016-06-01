@@ -6,6 +6,9 @@ const knexfile = require('../knexfile');
 const database = require('./database');
 const api = require('./api');
 const good = require('good');
+const vision = require('vision');
+const inert = require('inert');
+const swagger = require('hapi-swagger');
 
 class Server {
   constructor(inputOptions, connectionOptions) {
@@ -58,6 +61,11 @@ Server.prototype.initialize = function initialize() {
     });
   }
   plugins = plugins.concat([
+    inert,
+    vision,
+    {
+      register: swagger,
+    },
     {
       register: api,
       options: {
