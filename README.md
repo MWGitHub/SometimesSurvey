@@ -2,6 +2,8 @@
 
 # sometimes-survey
 
+Sometimes Survey is a library and service made up of three main parts. A microservice survey API, a scheme for survey item checking, and the survey deku component.
+
 ###Welcome
 ![welcome]
 
@@ -109,6 +111,8 @@ The flow will be in this order:
     * Up to analytics service to listen to events of the survey service
 1. Client goes on to the next prompt or hides regardless of result for better usability
 
+Note: pagination, article server, and article switching is not yet implemented.
+
 #####Survey Endpoints
 
 Private endpoints require authentication.
@@ -116,6 +120,7 @@ Private endpoints require authentication.
 `GET  auth /v1/surveys/`: Retrieve all surveys.  
 `POST auth /v1/surveys/`: Create a new survey.  
 `GET  auth /v1/surveys/{survey_id}`: Retrieve a single survey info.  
+`GET  auth /v1/surveys/{survey_id}/invalidate`: Clear cookie for the survey.  
 `POST auth /v1/surveys/{survey_id}/deploy`: Deploy a survey.  
 `POST auth /v1/surveys/{survey_id}/disable`: Disable a survey.  
 
