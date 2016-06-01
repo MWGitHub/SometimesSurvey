@@ -151,9 +151,12 @@
 	  }, transition * 1.5);
 	}
 	
-	function handleDeleteCookie(dispatch) {
-	  var survey = store.getState().survey;
+	function handleDeleteCookie(context, dispatch) {
+	  var survey = context.survey;
+	
 	  return function () {
+	    if (!survey) return;
+	
 	    var cookies = document.cookie.split(';');
 	    for (var i = 0; i < cookies.length; ++i) {
 	      var cookie = cookies[i];
@@ -169,11 +172,8 @@
 	  };
 	}
 	
-	function handleDeleteFacebook(dispatch) {
-	  return function () {
-	    localStorage.removeItem('subscribed');
-	    reset(dispatch);
-	  };
+	function handleDeleteFacebook() {
+	  localStorage.removeItem('subscribed');
 	}
 	
 	function handleCheckItem(survey, item) {
@@ -281,12 +281,18 @@
 	          null,
 	          (0, _deku.element)(
 	            'button',
-	            { 'class': 'toolbar__item', onClick: handleDeleteCookie(dispatch) },
+	            {
+	              'class': 'toolbar__item',
+	              onClick: handleDeleteCookie(context, dispatch)
+	            },
 	            'Delete Cookie'
 	          ),
 	          (0, _deku.element)(
 	            'button',
-	            { 'class': 'toolbar__item', onClick: handleDeleteFacebook(dispatch) },
+	            {
+	              'class': 'toolbar__item',
+	              onClick: handleDeleteFacebook
+	            },
 	            'Delete Facebook'
 	          )
 	        )
@@ -20999,21 +21005,6 @@
 		  }
 		}
 		
-		function checkItem(_ref2) {
-		  var props = _ref2.props;
-		
-		  if (props.item === undefined || props.item === null) {
-		    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
-		    return;
-		  }
-		
-		  if (!props.onCheckItem) return;
-		
-		  props.onCheckItem(props.survey, props.item).then(function (result) {
-		    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
-		  });
-		}
-		
 		function toggleScrollChecks(model) {
 		  var props = model.props;
 		  var state = model.state;
@@ -21033,6 +21024,21 @@
 		      checkScroll(model);
 		      window.requestAnimationFrame(frame);
 		    }
+		  });
+		}
+		
+		function checkItem(_ref2) {
+		  var props = _ref2.props;
+		
+		  if (props.item === undefined || props.item === null) {
+		    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
+		    return;
+		  }
+		
+		  if (!props.onCheckItem) return;
+		
+		  props.onCheckItem(props.survey, props.item).then(function (result) {
+		    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
 		  });
 		}
 		
@@ -21266,7 +21272,10 @@
 		
 		function onUpdate(model) {
 		  var props = model.props;
-		  if (!isReady(model)) return;
+		  if (!isReady(model)) {
+		    model.setState(initialState());
+		    return;
+		  }
 		
 		  if (model.state.container !== props.container) {
 		    checkItem(model);

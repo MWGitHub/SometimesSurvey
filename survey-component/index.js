@@ -30,19 +30,6 @@ function checkScroll({ props, state }) {
   }
 }
 
-function checkItem({ props }) {
-  if (props.item === undefined || props.item === null) {
-    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
-    return;
-  }
-
-  if (!props.onCheckItem) return;
-
-  props.onCheckItem(props.survey, props.item).then(result => {
-    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
-  });
-}
-
 function toggleScrollChecks(model) {
   const { props, state, setState } = model;
   if (props.show && state.isAnimating) {
@@ -59,6 +46,19 @@ function toggleScrollChecks(model) {
       checkScroll(model);
       window.requestAnimationFrame(frame);
     }
+  });
+}
+
+function checkItem({ props }) {
+  if (props.item === undefined || props.item === null) {
+    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
+    return;
+  }
+
+  if (!props.onCheckItem) return;
+
+  props.onCheckItem(props.survey, props.item).then(result => {
+    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
   });
 }
 
@@ -244,7 +244,10 @@ function onCreate(model) {
 
 function onUpdate(model) {
   const props = model.props;
-  if (!isReady(model)) return;
+  if (!isReady(model)) {
+    model.setState(initialState());
+    return;
+  }
 
   if (model.state.container !== props.container) {
     checkItem(model);

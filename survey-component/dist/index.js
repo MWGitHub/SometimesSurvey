@@ -100,21 +100,6 @@ module.exports =
 	  }
 	}
 	
-	function checkItem(_ref2) {
-	  var props = _ref2.props;
-	
-	  if (props.item === undefined || props.item === null) {
-	    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
-	    return;
-	  }
-	
-	  if (!props.onCheckItem) return;
-	
-	  props.onCheckItem(props.survey, props.item).then(function (result) {
-	    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
-	  });
-	}
-	
 	function toggleScrollChecks(model) {
 	  var props = model.props;
 	  var state = model.state;
@@ -134,6 +119,21 @@ module.exports =
 	      checkScroll(model);
 	      window.requestAnimationFrame(frame);
 	    }
+	  });
+	}
+	
+	function checkItem(_ref2) {
+	  var props = _ref2.props;
+	
+	  if (props.item === undefined || props.item === null) {
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, false);
+	    return;
+	  }
+	
+	  if (!props.onCheckItem) return;
+	
+	  props.onCheckItem(props.survey, props.item).then(function (result) {
+	    props.onItemStatus && props.onItemStatus(props.survey, props.item, result);
 	  });
 	}
 	
@@ -367,7 +367,10 @@ module.exports =
 	
 	function onUpdate(model) {
 	  var props = model.props;
-	  if (!isReady(model)) return;
+	  if (!isReady(model)) {
+	    model.setState(initialState());
+	    return;
+	  }
 	
 	  if (model.state.container !== props.container) {
 	    checkItem(model);

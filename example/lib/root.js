@@ -33,9 +33,12 @@ function reset(dispatch) {
   }, transition * 1.5);
 }
 
-function handleDeleteCookie(dispatch) {
-  const survey = store.getState().survey;
+function handleDeleteCookie(context, dispatch) {
+  const survey = context.survey;
+
   return () => {
+    if (!survey) return;
+
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; ++i) {
       const cookie = cookies[i];
@@ -51,11 +54,8 @@ function handleDeleteCookie(dispatch) {
   };
 }
 
-function handleDeleteFacebook(dispatch) {
-  return () => {
-    localStorage.removeItem('subscribed');
-    reset(dispatch);
-  };
+function handleDeleteFacebook() {
+  localStorage.removeItem('subscribed');
 }
 
 function handleCheckItem(survey, item) {
@@ -146,10 +146,16 @@ const Root = {
             </h2>
           </div>
           <div>
-            <button class="toolbar__item" onClick={handleDeleteCookie(dispatch)}>
+            <button
+              class="toolbar__item"
+              onClick={handleDeleteCookie(context, dispatch)}
+            >
               Delete Cookie
             </button>
-            <button class="toolbar__item" onClick={handleDeleteFacebook(dispatch)}>
+            <button
+              class="toolbar__item"
+              onClick={handleDeleteFacebook}
+            >
               Delete Facebook
             </button>
           </div>

@@ -4,7 +4,7 @@
   "description": "",
   "main": "simple.js",
   "scripts": {
-    "build": "webpack --progress --colors",
+    "build": "webpack --progress --colors --config webpack.config.prod",
     "watch": "webpack --progress --colors --watch",
     "start-survey": "node survey-server.js",
     "start-static": "http-server -p 6006",
