@@ -141,12 +141,16 @@ module.exports =
 	  if (state.isClosing) return;
 	
 	  var closeTime = props.closeTime || 1000;
+	  var transition = props.transition || 1000;
 	  setState({ isClosing: true }, false, props.stateAction);
 	  window.setTimeout(function () {
 	    props.onClose && props.onClose(props.survey, props.item);
 	    if (props.FB && state.handleLike) {
 	      props.FB.Event.unsubscribe('edge.create', state.handleLike);
 	    }
+	    window.setTimeout(function () {
+	      setState(initialState(), true);
+	    }, transition);
 	  }, closeTime);
 	}
 	

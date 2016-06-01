@@ -66,12 +66,16 @@ function thanksClose(setState, state, props) {
   if (state.isClosing) return;
 
   const closeTime = props.closeTime || 1000;
+  const transition = props.transition || 1000;
   setState({ isClosing: true }, false, props.stateAction);
   window.setTimeout(() => {
     props.onClose && props.onClose(props.survey, props.item);
     if (props.FB && state.handleLike) {
       props.FB.Event.unsubscribe('edge.create', state.handleLike);
     }
+    window.setTimeout(() => {
+      setState(initialState(), true);
+    }, transition);
   }, closeTime);
 }
 
