@@ -89,10 +89,6 @@
 	
 	var _promise2 = _interopRequireDefault(_promise);
 	
-	var _faker = __webpack_require__(77);
-	
-	var _faker2 = _interopRequireDefault(_faker);
-	
 	var _deku = __webpack_require__(1039);
 	
 	var _lodash = __webpack_require__(1064);
@@ -133,22 +129,42 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	/** @jsx element */
-	
-	
 	var initialState = {
 	  show: false,
 	  valid: false,
 	  question: 'Was this article worth your time?'
-	};
+	}; /** @jsx element */
+	
 	
 	var store = (0, _redux.createStore)(_reducers.reducer, initialState);
 	
 	var articles = _seeds2.default.articles;
 	
-	function handleReset(dispatch) {
+	function reset(dispatch) {
+	  dispatch({ type: _reducers.ACTIONS.SET_CONTAINER, container: null });
+	  dispatch({ type: _reducers.ACTIONS.SET_INVALID });
+	  dispatch({ type: _reducers.ACTIONS.HIDE });
+	}
+	
+	function handleDeleteCookie(dispatch) {
 	  return function () {
-	    dispatch({ type: _reducers.ACTIONS.UPDATE_UI });
+	    var cookies = document.cookie.split(';');
+	    for (var i = 0; i < cookies.length; ++i) {
+	      var cookie = cookies[i];
+	      var index = cookie.indexOf('=');
+	      var name = index > -1 ? cookie.substr(0, index) : cookie;
+	      if (_lodash2.default.trim(name) === 'survey-3') {
+	        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+	      }
+	    }
+	    reset(dispatch);
+	  };
+	}
+	
+	function handleDeleteFacebook(dispatch) {
+	  return function () {
+	    localStorage.removeItem('subscribed');
+	    reset(dispatch);
 	  };
 	}
 	
@@ -160,7 +176,7 @@
 	
 	function handleFetchItemStatus(dispatch) {
 	  return function (survey, item, result) {
-	    if (result) {
+	    if (result && result.show) {
 	      dispatch({ type: _reducers.ACTIONS.SET_VALID });
 	    } else {
 	      dispatch({ type: _reducers.ACTIONS.SET_INVALID });
@@ -175,7 +191,6 @@
 	}
 	
 	function handleImpression(survey, item) {
-	  console.log('track impression');
 	  _api2.default.postEvent(survey, item, {
 	    event: 'reader-survey-impression'
 	  });
@@ -183,7 +198,6 @@
 	}
 	
 	function handleRate(survey, item, value) {
-	  console.log('track rate', value);
 	  _api2.default.postEvent(survey, item, {
 	    event: 'reader-survey-conversion',
 	    data: {
@@ -201,7 +215,6 @@
 	}
 	
 	function handleLike(survey, item) {
-	  console.log('track like');
 	  var event = {
 	    event: 'social-capture',
 	    data: {
@@ -210,7 +223,6 @@
 	  };
 	  window.ga('send', 'event', 'social-capture', 'name', 'readerSurvey');
 	  if (_util2.default.isMobile()) {
-	    console.log('mobile');
 	    window.ga('send', 'event', 'social-capture', 'after.survey', 'true');
 	    event.data['after.survey'] = true;
 	  }
@@ -225,7 +237,6 @@
 	}
 	
 	function handleLikeClose(survey, item) {
-	  console.log('track like close');
 	  _api2.default.postEvent(survey, item, {
 	    event: 'reader-survey-close'
 	  });
@@ -243,16 +254,42 @@
 	      null,
 	      (0, _deku.element)(
 	        'div',
-	        { 'class': 'main' },
+	        { 'class': 'toolbar' },
 	        (0, _deku.element)(
-	          'button',
-	          { onClick: handleReset(dispatch) },
-	          'Reset'
+	          'div',
+	          null,
+	          (0, _deku.element)(
+	            'h2',
+	            { 'class': 'toolbar__logo' },
+	            (0, _deku.element)(
+	              'a',
+	              { 'class': 'contrast-link--plain', href: '/' },
+	              'Sometimes Survey'
+	            )
+	          )
 	        ),
 	        (0, _deku.element)(
-	          'h1',
+	          'div',
 	          null,
-	          'Survey Component Example'
+	          (0, _deku.element)(
+	            'button',
+	            { 'class': 'toolbar__item', onClick: handleDeleteCookie(dispatch) },
+	            'Delete Cookie'
+	          ),
+	          (0, _deku.element)(
+	            'button',
+	            { 'class': 'toolbar__item', onClick: handleDeleteFacebook(dispatch) },
+	            'Delete Facebook'
+	          )
+	        )
+	      ),
+	      (0, _deku.element)(
+	        'div',
+	        { 'class': 'main' },
+	        (0, _deku.element)(
+	          'h1',
+	          { 'class': 'title' },
+	          'Survey Component Examples'
 	        ),
 	        (0, _deku.element)(_article2.default, { id: 'article-1', article: articles.always, initial: true }),
 	        (0, _deku.element)(_article2.default, { id: 'article-2', article: articles.publishedBefore }),
@@ -90949,12 +90986,16 @@
 		  if (state.isClosing) return;
 		
 		  var closeTime = props.closeTime || 1000;
+		  var transition = props.transition || 1000;
 		  setState({ isClosing: true }, false, props.stateAction);
 		  window.setTimeout(function () {
 		    props.onClose && props.onClose(props.survey, props.item);
 		    if (props.FB && state.handleLike) {
 		      props.FB.Event.unsubscribe('edge.create', state.handleLike);
 		    }
+		    window.setTimeout(function () {
+		      setState(initialState(), true);
+		    }, transition);
 		  }, closeTime);
 		}
 		
@@ -91315,20 +91356,20 @@
 	    var paragraphs = article.text.map(function (v) {
 	      return (0, _deku.element)(
 	        'p',
-	        null,
+	        { 'class': 'article__text' },
 	        v
 	      );
 	    });
 	
 	    return (0, _deku.element)(
 	      'div',
-	      { id: props.id },
+	      { id: props.id, 'class': 'article' },
 	      (0, _deku.element)(
 	        'h2',
-	        null,
+	        { 'class': 'article__title' },
 	        article.title
 	      ),
-	      (0, _deku.element)('img', { src: article.image, alt: 'main' }),
+	      (0, _deku.element)('img', { 'class': 'article__image', src: article.image, alt: 'main' }),
 	      paragraphs
 	    );
 	  },
@@ -91337,15 +91378,33 @@
 	    var initial = _ref2$props.initial;
 	    var id = _ref2$props.id;
 	    var dispatch = _ref2.dispatch;
+	    var context = _ref2.context;
 	
 	    if (initial) {
 	      setTimeout(function () {
 	        var container = document.getElementById(id);
-	        dispatch({ type: _reducers.ACTIONS.SET_CONTAINER, container: container });
+	        if (container !== context.container) {
+	          dispatch({ type: _reducers.ACTIONS.SET_CONTAINER, container: container });
+	        }
 	      }, 0);
 	    }
 	  },
-	  onUpdate: function onUpdate(model) {}
+	  onUpdate: function onUpdate(_ref3) {
+	    var _ref3$props = _ref3.props;
+	    var initial = _ref3$props.initial;
+	    var id = _ref3$props.id;
+	    var dispatch = _ref3.dispatch;
+	    var context = _ref3.context;
+	
+	    if (initial) {
+	      setTimeout(function () {
+	        var container = document.getElementById(id);
+	        if (container !== context.container) {
+	          dispatch({ type: _reducers.ACTIONS.SET_CONTAINER, container: container });
+	        }
+	      }, 0);
+	    }
+	  }
 	};
 	
 	exports.default = Article;
@@ -92589,7 +92648,8 @@
 	    return (0, _reqwest2.default)({
 	      method: 'GET',
 	      url: path + '/surveys/' + surveyId + '/items/' + itemId + '/status',
-	      crossOrigin: true
+	      crossOrigin: true,
+	      withCredentials: true
 	    });
 	  },
 	  postEvent: function postEvent(surveyId, itemId, data) {
@@ -93268,9 +93328,12 @@
 	
 	var likeButton = (0, _deku.element)("div", { "class": "fb-like", "data-href": "https://code-splat.com", "data-layout": "button", "data-action": "like", "data-show-faces": "false", "data-share": "false" });
 	
+	function articleSetups() {}
+	
 	exports.default = {
 	  isMobile: isMobile,
-	  likeButton: likeButton
+	  likeButton: likeButton,
+	  articleSetups: articleSetups
 	};
 
 /***/ },

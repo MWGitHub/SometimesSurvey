@@ -1,5 +1,4 @@
 /** @jsx element */
-import faker from 'faker';
 import { element, createApp } from 'deku';
 import _ from 'lodash';
 import debounce from 'light-debounce';
@@ -23,9 +22,31 @@ const store = createStore(reducer, initialState);
 
 const articles = seeds.articles;
 
-function handleReset(dispatch) {
+function reset(dispatch) {
+  dispatch({ type: ACTIONS.SET_CONTAINER, container: null });
+  dispatch({ type: ACTIONS.SET_INVALID });
+  dispatch({ type: ACTIONS.HIDE });
+}
+
+function handleDeleteCookie(dispatch) {
   return () => {
-    dispatch({ type: ACTIONS.UPDATE_UI });
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; ++i) {
+      const cookie = cookies[i];
+      const index = cookie.indexOf('=');
+      const name = index > -1 ? cookie.substr(0, index) : cookie;
+      if (_.trim(name) === 'survey-3') {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      }
+    }
+    reset(dispatch);
+  };
+}
+
+function handleDeleteFacebook(dispatch) {
+  return () => {
+    localStorage.removeItem('subscribed');
+    reset(dispatch);
   };
 }
 
@@ -37,7 +58,7 @@ function handleCheckItem(survey, item) {
 
 function handleFetchItemStatus(dispatch) {
   return (survey, item, result) => {
-    if (result) {
+    if (result && result.show) {
       dispatch({ type: ACTIONS.SET_VALID });
     } else {
       dispatch({ type: ACTIONS.SET_INVALID });
@@ -52,7 +73,6 @@ function handleSurveyShown(dispatch) {
 }
 
 function handleImpression(survey, item) {
-  console.log('track impression');
   api.postEvent(survey, item, {
     event: 'reader-survey-impression',
   });
@@ -60,7 +80,6 @@ function handleImpression(survey, item) {
 }
 
 function handleRate(survey, item, value) {
-  console.log('track rate', value);
   api.postEvent(survey, item, {
     event: 'reader-survey-conversion',
     data: {
@@ -79,7 +98,6 @@ function handleRate(survey, item, value) {
 }
 
 function handleLike(survey, item) {
-  console.log('track like');
   const event = {
     event: 'social-capture',
     data: {
@@ -88,7 +106,6 @@ function handleLike(survey, item) {
   };
   window.ga('send', 'event', 'social-capture', 'name', 'readerSurvey');
   if (util.isMobile()) {
-    console.log('mobile');
     window.ga('send', 'event', 'social-capture', 'after.survey', 'true');
     event.data['after.survey'] = true;
   }
@@ -103,7 +120,6 @@ function handleClose(dispatch) {
 }
 
 function handleLikeClose(survey, item) {
-  console.log('track like close');
   api.postEvent(survey, item, {
     event: 'reader-survey-close',
   });
@@ -115,10 +131,24 @@ const Root = {
     const liked = !!localStorage.getItem('subscribed');
     return (
       <div>
+        <div class="toolbar">
+          <div>
+            <h2 class="toolbar__logo">
+              <a class="contrast-link--plain" href="/">Sometimes Survey</a>
+            </h2>
+          </div>
+          <div>
+            <button class="toolbar__item" onClick={handleDeleteCookie(dispatch)}>
+              Delete Cookie
+            </button>
+            <button class="toolbar__item" onClick={handleDeleteFacebook(dispatch)}>
+              Delete Facebook
+            </button>
+          </div>
+        </div>
         <div class="main">
-          <button onClick={handleReset(dispatch)}>Reset</button>
-          <h1>Survey Component Example</h1>
-          <Article id="article-1" article={articles.always} initial={true} />
+          <h1 class="title">Survey Component Examples</h1>
+          <Article id="article-1" article={articles.always} initial />
           <Article id="article-2" article={articles.publishedBefore} />
           <Article id="article-3" article={articles.old} />
         </div>

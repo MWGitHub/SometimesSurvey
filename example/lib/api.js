@@ -17,6 +17,7 @@ export default {
       method: 'GET',
       url: `${path}/surveys/${surveyId}/items/${itemId}/status`,
       crossOrigin: true,
+      withCredentials: true,
     });
   },
 

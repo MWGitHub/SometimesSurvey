@@ -8,7 +8,12 @@ function isMobile() {
 
 const likeButton = <div class="fb-like" data-href="https://code-splat.com" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>;
 
+function articleSetups() {
+  
+}
+
 export default {
   isMobile,
   likeButton,
+  articleSetups,
 };
