@@ -16,8 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "moment": "^2.13.0",
-    "survey-scheme-article": "file:///Users/mw/projects/apps/sometimes-survey/survey-scheme-article",
-    "survey-server": "file:///Users/mw/projects/apps/sometimes-survey/survey-server"
+    "survey-scheme-article": "file:../survey-scheme-article",
+    "survey-server": "file:../survey-server"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
@@ -48,7 +48,7 @@
     "redux": "^3.5.2",
     "reqwest": "^2.0.5",
     "style-loader": "^0.13.1",
-    "survey-component": "file:///Users/mw/projects/apps/sometimes-survey/survey-component",
+    "survey-component": "file:../survey-component",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1",
     "webpack": "^1.13.1"
