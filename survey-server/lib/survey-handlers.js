@@ -46,7 +46,10 @@ module.exports = {
     const surveyID = request.params.survey_id;
     const cookieName = `survey-${surveyID}`;
 
-    reply().unstate(cookieName);
+    reply().unstate(cookieName, {
+      isHttpOnly: false,
+      path: '/',
+    });
   },
 
   deploySurvey(request, reply) {
