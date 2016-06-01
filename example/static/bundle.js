@@ -265,7 +265,7 @@
 	        { 'class': 'toolbar' },
 	        (0, _deku.element)(
 	          'div',
-	          null,
+	          { 'class': 'toolbar--left' },
 	          (0, _deku.element)(
 	            'h2',
 	            { 'class': 'toolbar__logo' },
@@ -278,7 +278,7 @@
 	        ),
 	        (0, _deku.element)(
 	          'div',
-	          null,
+	          { 'class': 'toolbar--right' },
 	          (0, _deku.element)(
 	            'button',
 	            {

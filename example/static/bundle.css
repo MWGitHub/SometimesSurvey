@@ -385,6 +385,27 @@ a {
   border: 1px solid #c4c0c0;
 }
 
+@media (max-width: 425px) {
+  .toolbar {
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    height: 40px;
+  }
+
+  .toolbar--left {
+    text-align: center;
+  }
+
+  .toolbar--right {
+    text-align: center;
+  }
+}
+
 /** Page **/
 
 .title {

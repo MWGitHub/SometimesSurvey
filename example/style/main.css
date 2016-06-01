@@ -69,6 +69,22 @@ a {
   border: 1px solid #c4c0c0;
 }
 
+@media (max-width: 425px) {
+  .toolbar {
+    justify-content: center;
+    flex-direction: column;
+    height: 40px;
+  }
+
+  .toolbar--left {
+    text-align: center;
+  }
+
+  .toolbar--right {
+    text-align: center;
+  }
+}
+
 /** Page **/
 .title {
   margin: 40px 0 20px 0;

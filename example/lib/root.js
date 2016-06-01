@@ -140,12 +140,12 @@ const Root = {
     return (
       <div>
         <div class="toolbar">
-          <div>
+          <div class="toolbar--left">
             <h2 class="toolbar__logo">
               <a class="contrast-link--plain" href="/">Sometimes Survey</a>
             </h2>
           </div>
-          <div>
+          <div class="toolbar--right">
             <button
               class="toolbar__item"
               onClick={handleDeleteCookie(context, dispatch)}
