@@ -1,6 +1,7 @@
 import request from 'reqwest';
+import config from '../config';
 
-const server = 'http://localhost:6005';
+const server = config.server;
 const path = `${server}/v1`;
 
 export default {
