@@ -7,6 +7,8 @@ Sometimes Survey is a library and service made up of three main parts. A microse
 ###Welcome
 ![welcome]
 
+**Note that the survey showing is based on how old an article is and it is very likely that all the articles are too old to show the survey**
+
 Check out the survey server and component in action here:  
 [http://survey.mwguy.com/](http://survey.mwguy.com/)
 
