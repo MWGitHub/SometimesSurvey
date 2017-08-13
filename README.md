@@ -4,7 +4,7 @@
 
 Sometimes Survey is a library and service made up of three main parts. A microservice survey API, a scheme for survey item checking, and the survey deku component.
 
-###Welcome
+### Welcome
 ![welcome]
 
 **Note that the survey showing is based on how old an article is and it is very likely that all the articles are too old to show the survey**
@@ -15,18 +15,18 @@ Check out the survey server and component in action here:
 The API server can be queried manually here:  
 [http://survey-api.mwguy.com/](http://survey-api.mwguy.com/)
 
-###Notes
+### Notes
 The front-end needs to be refactored badly.
 All combinations of showing articles have been unit tested in the survey-scheme-article folder.
 
-###Architecture
+### Architecture
 
-#####Overview
+##### Overview
 General architecture will be a survey service that can handle multiple types of survey conditions for more than just articles if needed. The way to handle a type would be to provide schemes to the survey server which would handle validity and criteria checks. Schemes are chosen based on the survey property.
 
 Tracking is done by passing in callbacks to the survey component. This way the user can decide which tracker to use. Additionally, events are sent to the survey server when a database is connected to it. This allows for more flexibility in querying the data collected. The default site currently uses database storing and Google Analytics.
 
-#####Technology
+##### Technology
 
 **Persistence**   
 Postgres is used for storing the results of each item. I chose this due to the structure of the survey data being well defined for some columns which will make it easier to run aggregate queries. For less defined data, jsonb is used.
@@ -44,7 +44,7 @@ PostCSS will be used to transform CSS and was chosen because one can choose only
 **Tracking**  
 Callbacks are used around tracking events to allow developers to choose how to deal with the events when they occur in the component. Impression and conversion events are also sent to the survey server to store the results if enabled.
 
-#####Data Model
+##### Data Model
 
 Survey Event Model  
 Fingerprint can be used to see more detailed user behavior. The fingerprint is not guaranteed to be unique but the collision chance is low enough for this case.  
@@ -70,7 +70,7 @@ events
   timestamp
 ```
 
-#####Folder Structure
+##### Folder Structure
 ```
 /
   example/
@@ -100,7 +100,7 @@ The root will have three main folders, one for the server, one for the scheme to
 
 Each will have fake responses for handling article endpoints and analytics endpoints for testing and examples.
 
-#####Client/Server Flow
+##### Client/Server Flow
 
 The flow will be in this order:
 
@@ -119,7 +119,7 @@ The flow will be in this order:
 
 Note: pagination, article server, and article switching is not yet implemented.
 
-#####Survey Endpoints
+##### Survey Endpoints
 
 Private endpoints require authentication.
 
@@ -135,7 +135,7 @@ Private endpoints require authentication.
 `GET /v1/surveys/{survey_id}/items/{id}/status`:  Check if a survey should be shown for the given item.  
 `POST /v1/surveys/{survey_id}/items/{id}/events`: Create an event for the item.  
 
-#####Implementation Steps
+##### Implementation Steps
 
 Each step creates tests before creating the implementation. Tests and examples that require seed data will be created as needed.
 
